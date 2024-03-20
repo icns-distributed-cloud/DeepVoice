@@ -4,6 +4,10 @@ sudo docker exec -it deepAudio /bin/bash
 
 # Setting Environment
 apt update
+cd root
+
+git clone https://github.com/icns-distributed-cloud/DeepVoice.git
+cd DeepVoice
 bash setup
 
 # Isolate Vocal
