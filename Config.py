@@ -2,9 +2,9 @@ import torch
 
 class Isolate_Vocals_config:
     def __init__(self):
-        self.input_path = 'https://www.youtube.com/watch?v=EVJjmMW7eII'
+        self.input_path = '/content/VocalRemover5-COLAB_arch/tracks'
         self.pretrained_model = "HP2-4BAND-3090_4band_arch-500m_1.pth"
-        self.convertAll = False #if input_path is start http = False / else True
+        self.convertAll = True #if input_path is start http = False / else True
         self.window_size =  512
         self.parameter = "Auto detect"
         self.high_end_process = 'mirroring'

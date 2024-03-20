@@ -3,8 +3,8 @@
 ###########################################
 import time
 start_time = time.time()
-
 import Config
+
 config = Config.Voice_Model_Training_config()
 experiment_name = config.experiment_name #@param {type:"string"}
 print('experiment_name:', experiment_name)
@@ -19,6 +19,23 @@ now_dir = os.getcwd()
 os.makedirs(os.path.join(now_dir, "logs"), exist_ok=True)
 os.makedirs(os.path.join(now_dir, "weights"), exist_ok=True)
 os.makedirs('/content/rvcDisconnected', exist_ok=True)
+
+
+###########################################
+############################# Get arguments
+###########################################
+import argparse
+
+def argparser (experiment_name):
+  # 1. Parser 생성
+  parser = argparse.ArgumentParser(description='Parser example')
+  parser.add_argument('-n', '--name', type=str, default = experiment_name, help='Name of model')
+
+  return parser.parse_args()
+
+args = argparser(experiment_name)
+
+experiment_name = args.name
 
 #########################################
 ###################### GPU Check
