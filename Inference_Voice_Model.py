@@ -110,7 +110,7 @@ rvc_name = config.experiment_name
 
 def argparser (rvc_name):
   parser = argparse.ArgumentParser(description='Parser example')
-  parser.add_argument('-n', '--name', type=str, default = experiment_name, help='Name of model')
+  parser.add_argument('-n', '--name', type=str, default = rvc_name, help='Name of model')
   return parser.parse_args()
 args = argparser(rvc_name)
 rvc_name = args.name
