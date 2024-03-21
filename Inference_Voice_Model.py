@@ -1,7 +1,7 @@
 import os,sys,pdb,torch
 now_dir = os.getcwd()
 sys.path.append(now_dir)
-os.chdir("/content/Mangio-RVC-Fork")
+
 
 import argparse
 import glob
@@ -32,6 +32,7 @@ def load_audio(file, sr):
 
 now_dir=os.getcwd()
 sys.path.append(now_dir)
+sys.path.append('/content/Mangio-RVC-Fork')
 
 from vc_infer_pipeline import VC
 from lib.infer_pack.models import SynthesizerTrnMs256NSFsid, SynthesizerTrnMs256NSFsid_nono, SynthesizerTrnMs768NSFsid, SynthesizerTrnMs768NSFsid_nono
@@ -96,7 +97,6 @@ import os
 import sys
 now_dir=os.getcwd()
 sys.path.append(now_dir)
-sys.path.append(os.path.join(now_dir,"Retrieval-based-Voice-Conversion-WebUI"))
 
 from IPython.display import Audio
 from scipy.io.wavfile import write as write_wav
@@ -106,8 +106,8 @@ coarse_path = "coarse_output/pytorch_model.bin" # set to None if you don't want 
 fine_path = "fine_output/pytorch_model.bin" # set to None if you don't want to use finetuned fine
 use_rvc = True # Set to False to use bark without RVC
 rvc_name = 'KanyeV2_Redux_40khz'
-rvc_path = f"Retrieval-based-Voice-Conversion-WebUI/weights/{rvc_name}.pth"
-index_path = f"Retrieval-based-Voice-Conversion-WebUI/logs/{rvc_name}/added_IVF256_Flat_nprobe_1_{rvc_name}_v2.index"
+rvc_path = f"/content/Mangio-RVC-Fork/weights/{rvc_name}.pth"
+index_path = f"/content/Mangio-RVC-Fork/logs/{rvc_name}/added_IVF256_Flat_nprobe_1_{rvc_name}_v2.index"
 device="cuda:0"
 is_half=True
 SAMPLE_RATE = 24_000
