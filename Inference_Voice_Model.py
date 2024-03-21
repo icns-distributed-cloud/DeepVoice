@@ -101,11 +101,19 @@ sys.path.append(now_dir)
 from IPython.display import Audio
 from scipy.io.wavfile import write as write_wav
 
+config = Config_Infer.Inference_config()
 semantic_path = "semantic_output/pytorch_model.bin" # set to None if you don't want to use finetuned semantic
 coarse_path = "coarse_output/pytorch_model.bin" # set to None if you don't want to use finetuned coarse
 fine_path = "fine_output/pytorch_model.bin" # set to None if you don't want to use finetuned fine
 use_rvc = True # Set to False to use bark without RVC
-rvc_name = 'KanyeV2_Redux_40khz'
+rvc_name = config.experiment_name
+
+def argparser (rvc_name):
+  parser = argparse.ArgumentParser(description='Parser example')
+  parser.add_argument('-n', '--name', type=str, default = experiment_name, help='Name of model')
+  return parser.parse_args()
+args = argparser(rvc_name)
+rvc_name = args.name
 rvc_path = f"/content/Mangio-RVC-Fork/weights/{rvc_name}.pth"
 index_path = f"/content/Mangio-RVC-Fork/logs/{rvc_name}/added_IVF256_Flat_nprobe_1_{rvc_name}_v2.index"
 device="cuda:0"

@@ -36,6 +36,7 @@ class Inference_config:
         self.gpu_name = None
         self.gpu_mem = None
         self.x_pad, self.x_query, self.x_center, self.x_max = self.device_config()
+        self.experiment_name = "experiment_name" #@param {type:"string"}
 
     def device_config(self) -> tuple:
         if torch.cuda.is_available():
