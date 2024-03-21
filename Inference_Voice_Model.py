@@ -1,7 +1,8 @@
 import os,sys,pdb,torch
-os.chdir('/root/VoiceCover')
 now_dir = os.getcwd()
 sys.path.append(now_dir)
+os.chdir("Retrieval-based-Voice-Conversion-WebUI")
+
 import argparse
 import glob
 import sys
@@ -31,7 +32,7 @@ def load_audio(file, sr):
 
 now_dir=os.getcwd()
 sys.path.append(now_dir)
-sys.path.append(os.path.join(now_dir,"Retrieval-based-Voice-Conversion-WebUI"))
+#sys.path.append(os.path.join(now_dir,"Retrieval-based-Voice-Conversion-WebUI"))
 
 from vc_infer_pipeline import VC
 from lib.infer_pack.models import SynthesizerTrnMs256NSFsid, SynthesizerTrnMs256NSFsid_nono, SynthesizerTrnMs768NSFsid, SynthesizerTrnMs768NSFsid_nono
