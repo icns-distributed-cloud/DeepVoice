@@ -40,7 +40,7 @@ import Config_Infer
 hubert_model=None
 def load_hubert():
     global hubert_model
-    models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(["/root/VoiceCover/Retrieval-based-Voice-Conversion-WebUI/hubert_base.pt"],suffix="",)
+    models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(["/content/Mangio-RVC-Fork/hubert_base.pt"],suffix="",)
     hubert_model = models[0]
     hubert_model = hubert_model.to(device)
     if(is_half):hubert_model = hubert_model.half()
