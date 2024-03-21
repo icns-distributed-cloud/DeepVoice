@@ -1,9 +1,6 @@
 apt update
 mkdir /content
 
-# git clone Retrieval-based-Voice-Conversion-WebUI
-git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI.git
-
 # Isolates Vocal 
 # PC
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
