@@ -9,6 +9,7 @@ input = config.input_path
 ###################### Setting Environment
 ##########################################
 import os
+
 os.makedirs('/content', exist_ok=True)
 os.chdir('/content')
 # ------------VSC REWRITE
