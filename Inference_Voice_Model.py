@@ -1,8 +1,4 @@
-import os,sys,pdb,torch
-now_dir = os.getcwd()
-sys.path.append(now_dir)
-
-
+import os, pdb
 import argparse
 import glob
 import sys
@@ -10,6 +6,11 @@ import torch
 from multiprocessing import cpu_count
 import ffmpeg
 import numpy as np
+now_dir = os.getcwd()
+sys.path.append(now_dir)
+os.chdir('/content/Mangio-RVC-Fork')
+now_dir=os.getcwd()
+sys.path.append(now_dir)
 
 
 def load_audio(file, sr):
@@ -29,10 +30,6 @@ def load_audio(file, sr):
         raise RuntimeError(f"Failed to load audio: {e}")
 
     return np.frombuffer(out, np.float32).flatten()
-
-now_dir=os.getcwd()
-sys.path.append(now_dir)
-sys.path.append('/content/Mangio-RVC-Fork')
 
 from vc_infer_pipeline import VC
 from lib.infer_pack.models import SynthesizerTrnMs256NSFsid, SynthesizerTrnMs256NSFsid_nono, SynthesizerTrnMs768NSFsid, SynthesizerTrnMs768NSFsid_nono
