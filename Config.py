@@ -38,11 +38,11 @@ class Voice_Model_Training_config:
         self.cpu_threads = 2 #@param {type:"integer"}
         self.speaker_id = 0 #@param {type:"integer"}
         self.pitch_extraction_algorithm = "rmvpe" #@param ["harvest", "crepe", "mangio-crepe", "rmvpe"] {allow-input: false}
-        self.crepe_hop_length = 64 #@param {type:"integer"}
+        self.crepe_hop_length = 128 #@param {type:"integer"}
         self.pitch_guidance = True #@param {type:"boolean"}
         self.save_frequency = 10 #@param {type:"integer"}
         self.total_epochs = 100 #@param {type:"integer"}
-        self.batch_size = 8 #@param {type:"integer"}
+        self.batch_size = 4 #@param {type:"integer"}
         self.save_only_latest_ckpt = True #@param {type:"boolean"}
         self.cache_all_training_sets = False #@param {type:"boolean"}
         self.save_small_final_model = True #@param {type:"boolean"}
