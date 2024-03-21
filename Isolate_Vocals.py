@@ -49,7 +49,7 @@ if os.path.isdir('/content/Mangio-RVC-Fork/tracks'):
         os.remove(os.path.join(folder_path, file))
 else:
     print('tracks 폴더를 복사합니다.')
-    shutil.copytree('/root/DeepVoice/tracks', '/content/Mangio-RVC-Fork/tracks')
+    shutil.copytree('/root/DeepVoice/tracks', '/content/VocalRemover5-COLAB_arch/tracks')
 ##########################################
 ###################### Setting Environment
 ##########################################
