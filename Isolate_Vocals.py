@@ -42,9 +42,9 @@ if os.path.isdir('/content/VocalRemover5-COLAB_arch/separated'):
     for file in os.listdir(folder_path):
         os.remove(os.path.join(folder_path, file))
 
-if os.path.isdir('/content/Mangio-RVC-Fork/tracks'):
+if os.path.isdir('/content/VocalRemover5-COLAB_arch/tracks'):
     print('tracks 폴더를 정리합니다.')
-    folder_path = '/content/Mangio-RVC-Fork/tracks'
+    folder_path = '/content/VocalRemover5-COLAB_arch/tracks'
     for file in os.listdir(folder_path):
         os.remove(os.path.join(folder_path, file))
 else:
