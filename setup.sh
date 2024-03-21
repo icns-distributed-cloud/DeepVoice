@@ -30,6 +30,7 @@ pip install git+https://github.com/ytdl-org/ytdl-nightly.git@2023.08.07
 pip install opencv-python
 pip install pathvalidate
 pip install pydub
+pip install ipython[all]
 
 # Inference setup
 pip install torchcrepe
