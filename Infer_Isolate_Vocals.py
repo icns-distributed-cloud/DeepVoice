@@ -8,6 +8,8 @@ input = config.input_path
 ##########################################
 ###################### Setting Environment
 ##########################################
+import os
+
 if os.path.isdir('/content/VocalRemover5-COLAB_arch/separated'):
     print('separated 폴더를 정리합니다.')
     folder_path = '/content/VocalRemover5-COLAB_arch/separated'
