@@ -123,6 +123,7 @@ get_vc(rvc_path, device, is_half)
 infer_data_path = '/content/dataset_Infer'
 for file in os.listdir(infer_data_path):
     if 'Vocals.wav' in file:
+        file_name = file
         filepath = os.path.join(infer_data_path, file)
         
 index_rate = 0.75
@@ -138,6 +139,9 @@ except:
     audio_array = vc_single(0,filepath,f0up_key,None,'pm',index_path,index_rate, filter_radius=filter_radius, resample_sr=resample_sr, rms_mix_rate=rms_mix_rate, protect=protect)
 
 save_file_path = os.path.join(infer_data_path, f'{rvc_name}_{os.path.split(filepath)[0]}')
-write_wav(filepath, SAMPLE_RATE, audio_array)
+
+
+save_data_path = os.path.join(infer_data_path, f'{rvc_name}_{file_name}.wav')
+write_wav(save_data_path, SAMPLE_RATE, audio_array)
 
 #Audio(audio_array, rate=SAMPLE_RATE)
