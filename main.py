@@ -4,6 +4,7 @@ from typing import List
 import schemas  # schemas.py 파일에서 정의한 모델을 import
 import functions
 from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -39,30 +40,28 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
 
 # 4. 텍스트 정보 받기 6. 모델 추론 결과 제공
 @app.post("/text_info")
-async def text_info(text_data: schemas.TextInfoRequest):
-    if not text_data.text:
+async def text_info(text: str = Form(...)):
+    if not text:
         raise HTTPException(status_code=400, detail="No text provided")
 
-    data["text_info"] = text_data.text
+    data["text_info"] = text
     return {"message": "Text information received"}
 
 # 5. 모델 추론하기 - 현기코드 제공예정
 
 # 6. 모델 추론 결과 제공 엔드포인트
-@app.get("/prediction", response_model=schemas.PredictionResponse)
+@app.get("/prediction")
 async def get_prediction():
-    if data["text_info"] is None:
-        return {"error": "No text information provided"}
+    #if data["text_info"] is None:
+    #    return {"error": "No text information provided"}
     
-    # 모델 추론 로직 구현
-    prediction = run_inference(data["text_info"])  # 모델 추론 함수를 호출하여 예측 결과를 받기
-    
-    # 모델 추론 결과를 제공하는 부분
-    return schemas.PredictionResponse(prediction=prediction)
+    audio_file_path = "/content/Mangio-RVC-Fork/tracks/7번_HP2-4BAND-3090_4band_arch-500m_1_Vocals.wav"
+    filename = audio_file_path.split('/')[-1]
+    return FileResponse(audio_file_path, media_type='audio/wav', filename=filename)
 
 # 7. 데이터 초기화
-@app.delete("/reset_data")
-async def reset_data(reset_data: schemas.ResetDataRequest):
+@app.post("/reset_data")
+async def reset_data(models: List[str] = None, model_name: str = None, text: str = None):
     if not reset_data.models or not reset_data.model_name or not reset_data.text:
         raise HTTPException(status_code=400, detail="Missing required fields in reset data request")
 
@@ -83,6 +82,10 @@ async def main():
     <form action="/train_model/" enctype="multipart/form-data" method="post">
     <input name="audios" type="file" multiple>
     <input name="model_name" type="text">
+    <input type="submit">
+    </form>
+    <form action="/text_info/" enctype="multipart/form-data" method="post">
+    <input name="text" type="text">
     <input type="submit">
     </form>
     </body>
