@@ -30,13 +30,17 @@ class Isolate_Vocals_config:
 
 class Inference_config:
     def __init__(self):
+        with open("/root/DeepVoice/Common_Config.json", "r") as f:
+            data = json.load(f)
+
         self.device = "cuda:0" if torch.cuda.is_available() else 'cpu'
         self.is_half = True
         self.n_cpu = 0
         self.gpu_name = None
         self.gpu_mem = None
         self.x_pad, self.x_query, self.x_center, self.x_max = self.device_config()
-        self.experiment_name = "experiment_name" #@param {type:"string"}
+        self.experiment_name = data.experiment_name
+        self.text_prompt = data.text_prompt
 
     def device_config(self) -> tuple:
         if torch.cuda.is_available():

@@ -11,7 +11,7 @@ cd DeepVoice
 bash setup.sh
 
 # Isolate Vocal
-python Isolate_vocal.py
+python Isolate_Vocals.py
 
 # Train Model
-python Train_model.py
+python Voice_Model_Training.py

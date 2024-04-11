@@ -91,3 +91,7 @@ rm -rf /content/Mangio-RVC-Fork/configs/48k.json
 aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/Kit-Lemonfoot/RVC_DidntAsk/resolve/main/32k.json -d /content/Mangio-RVC-Fork/configs -o 32k.json
 aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/Kit-Lemonfoot/RVC_DidntAsk/resolve/main/40k.json -d /content/Mangio-RVC-Fork/configs -o 40k.json
 aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/Kit-Lemonfoot/RVC_DidntAsk/resolve/main/48k.json -d /content/Mangio-RVC-Fork/configs -o 48k.json
+
+# Backend
+pip install "fastapi[all]"
+pip install "uvicorn[standard]"

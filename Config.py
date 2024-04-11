@@ -1,4 +1,5 @@
 import torch
+import json
 
 class Isolate_Vocals_config:
     def __init__(self):
@@ -29,22 +30,24 @@ class Isolate_Vocals_config:
 
 class Voice_Model_Training_config:
     def __init__(self):
-        self.experiment_name = "experiment_name" #@param {type:"string"}
-        self.dataset = "zipfile.zip"  #@param {type:"string"}
-        self.pretrain_type = "OV2" #@param ["original", "OV2", "RIN_E3"] {allow-input: false}
-        self.path_to_training_folder = "/content/datasets/"
-        self.model_architecture = "v2" #@param ["v1","v2"] {allow-input: false}
-        self.target_sample_rate = "40k" #@param ["32k", "40k", "48k"] {allow-input: false}
-        self.cpu_threads = 2 #@param {type:"integer"}
-        self.speaker_id = 0 #@param {type:"integer"}
-        self.pitch_extraction_algorithm = "rmvpe" #@param ["harvest", "crepe", "mangio-crepe", "rmvpe"] {allow-input: false}
-        self.crepe_hop_length = 128 #@param {type:"integer"}
-        self.pitch_guidance = True #@param {type:"boolean"}
-        self.save_frequency = 10 #@param {type:"integer"}
-        self.total_epochs = 100 #@param {type:"integer"}
-        self.batch_size = 4 #@param {type:"integer"}
-        self.save_only_latest_ckpt = True #@param {type:"boolean"}
-        self.cache_all_training_sets = False #@param {type:"boolean"}
-        self.save_small_final_model = True #@param {type:"boolean"}
-        self.use_manual_stepToEpoch = False #@param {type:"boolean"}
-        self.manual_stepToEpoch = 000 #@param {type:"integer"}
+        with open("/root/DeepVoice/Common_Config.json", "r") as f:
+            data = json.load(f)
+        self.experiment_name = data['experiment_name']
+        self.dataset = data['dataset']
+        self.pretrain_type = data['pretrain_type']
+        self.path_to_training_folder = data['path_to_training_folder']
+        self.model_architecture = data['model_architecture']
+        self.target_sample_rate = data['target_sample_rate']
+        self.cpu_threads = data['cpu_threads']
+        self.speaker_id = data['speaker_id']
+        self.pitch_extraction_algorithm = data['pitch_extraction_algorithm']
+        self.crepe_hop_length = data['crepe_hop_length']
+        self.pitch_guidance = data['pitch_guidance']
+        self.save_frequency = data['save_frequency']
+        self.total_epochs = data['total_epochs']
+        self.batch_size = data['batch_size']
+        self.save_only_latest_ckpt = data['save_only_latest_ckpt']
+        self.cache_all_training_sets = data['cache_all_training_sets']
+        self.save_small_final_model = data['save_small_final_model']
+        self.use_manual_stepToEpoch = data['use_manual_stepToEpoch']
+        self.manual_stepToEpoch = data['manual_stepToEpoch']
