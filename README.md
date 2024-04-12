@@ -23,7 +23,7 @@ pip install "uvicorn[standard]"
 
 ## 실행 명령어
 ````
-uvicorn main:app --reload
+uvicorn main:app --reload --host 0.0.0.0
 ````
 
 # Deepvoice_Model
