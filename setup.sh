@@ -1,11 +1,14 @@
 apt update
 mkdir /content
+mkdir /content/rvcDisconnected
+mkdir /content/VocalRemover5-COLAB_arch
+mkdir /content/VocalRemover5-COLAB_arch/tracks
 
 # Isolates Vocal 
 # PC
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+#pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 #Linux
-# pip3 install torch torchvision torchaudio
+pip3 install torch torchvision torchaudio
 pip install pathvalidate
 pip install yt_dlp
 pip install samplerate==0.1.0
