@@ -27,9 +27,11 @@ uvicorn main:app --reload
 ````
 
 # Deepvoice_Model
+```bash
 git clone https://github.com/icns-distributed-cloud/DeepVoice.git
 cd DeepVoice
 bash setup.sh
+```
 
 ## Isolate Vocal
 python Isolate_Vocals.py
