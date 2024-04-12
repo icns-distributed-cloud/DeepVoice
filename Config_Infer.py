@@ -1,5 +1,6 @@
 import torch
 from multiprocessing import cpu_count
+import json
 
 class Isolate_Vocals_config:
     def __init__(self):
@@ -39,8 +40,8 @@ class Inference_config:
         self.gpu_name = None
         self.gpu_mem = None
         self.x_pad, self.x_query, self.x_center, self.x_max = self.device_config()
-        self.experiment_name = data.experiment_name
-        self.text_prompt = data.text_prompt
+        self.experiment_name = data['experiment_name']
+        self.text_prompt = data['text_prompt']
 
     def device_config(self) -> tuple:
         if torch.cuda.is_available():

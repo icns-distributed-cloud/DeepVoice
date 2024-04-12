@@ -34,6 +34,9 @@ pip install ipython[all]
 
 # Inference setup
 pip install torchcrepe
+pip install encodec
+pip install funcy
+pip install transformers
 
 # Training Voicemodel
 cd /content
@@ -95,3 +98,6 @@ aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/Kit
 # Backend
 pip install "fastapi[all]"
 pip install "uvicorn[standard]"
+
+# Inference rmvpe.pt
+wget -p /content/Mangio-RVC-Fork/ https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt

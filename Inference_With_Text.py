@@ -1,6 +1,6 @@
 from IPython.display import Audio
 from scipy.io.wavfile import write as write_wav
-
+import os
 from bark.api import generate_audio
 from bark.generation import SAMPLE_RATE, preload_models, codec_decode, generate_coarse, generate_fine, generate_text_semantic
 import Config_Infer
@@ -55,15 +55,12 @@ if use_rvc:
     
 # simple generation
 text_prompt = config.text_prompt
+
 voice_name = "speaker_0" # use your custom voice name here if you have on
 
-filepath = "audio"
+filepath = "/content/dataset_Infer/audio.wav"
 audio_array = generate_audio(text_prompt, history_prompt=voice_name, text_temp=0.7, waveform_temp=0.7)
-
-infer_data_path = '/content/dataset_Infer'
-os.makedirs(infor_data_path, exist_ok=True)
-save_data_path = os.path.join(infer_data_path, f'{rvc_name}_{file_name}.wav')
-write_wav(save_data_path, SAMPLE_RATE, audio_array)
+write_wav(filepath, SAMPLE_RATE, audio_array)
 
 if use_rvc:
     index_rate = 0.75
@@ -77,4 +74,8 @@ if use_rvc:
         audio_array = vc_single(0,filepath,f0up_key,None,f0method,index_path,index_rate, filter_radius=filter_radius, resample_sr=resample_sr, rms_mix_rate=rms_mix_rate, protect=protect)
     except:
         audio_array = vc_single(0,filepath,f0up_key,None,'pm',index_path,index_rate, filter_radius=filter_radius, resample_sr=resample_sr, rms_mix_rate=rms_mix_rate, protect=protect)
-    write_wav(filepath, SAMPLE_RATE, audio_array)
+
+    infer_data_path = '/content/dataset_Infer'
+    os.makedirs(infer_data_path, exist_ok=True)
+    save_data_path = os.path.join(infer_data_path, f'{rvc_name}.wav')
+    write_wav(save_data_path, SAMPLE_RATE, audio_array)
