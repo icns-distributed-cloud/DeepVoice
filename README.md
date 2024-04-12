@@ -8,7 +8,7 @@
 ## Getting Started (Installation)
 ## Generate Docker Container
 ```bash
-sudo docker container run -itd  --gpus '"device=0, 1"' --ipc=host --name deepAudio python:3.8
+sudo docker container run -itd  --gpus '"device=0, 1"' --ipc=host --name deepAudio -p 8000:8000 python:3.8
 sudo docker exec -it deepAudio /bin/bash
 ```
 
