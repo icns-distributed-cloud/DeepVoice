@@ -439,8 +439,10 @@ print("Mute filelist written. Best of luck training!")
 
 os.chdir('/content/Mangio-RVC-Fork')
 os.system(cmd)
-#os.system("cd /content/Mangio-RVC-Fork")
-#os.system("load_ext tensorboard")
-#os.system("tensorboard --logdir /content/Mangio-RVC-Fork/logs")
+
+if os.path.isdir('/content/datasets'):
+  train_data_path = os.path.join('/content/datasets', experiment_name)
+  print('{} 데이터를 정리합니다.'.format(train_data_path))
+  shutil.rmtree(train_data_path)
 
 print('total processtime:', round(time.time() - start_time, 2))

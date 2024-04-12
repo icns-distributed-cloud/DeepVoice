@@ -34,7 +34,11 @@ bash setup.sh
 ```
 
 ## Isolate Vocal
+```bash
 python Isolate_Vocals.py
+```
 
 ## Train Model
+```bash
 python Voice_Model_Training.py
+```
