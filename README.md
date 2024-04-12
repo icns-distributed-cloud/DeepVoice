@@ -7,8 +7,10 @@
 
 ## Getting Started (Installation)
 ## Generate Docker Container
+```bash
 sudo docker container run -itd  --gpus '"device=0, 1"' --ipc=host --name deepAudio python:3.8
 sudo docker exec -it deepAudio /bin/bash
+```
 
 ## Setting Environment
 apt update
