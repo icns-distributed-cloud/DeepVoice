@@ -34,6 +34,7 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
         file_path = f"/content/VocalRemover5-COLAB_arch/tracks/{audio_file.filename}"
         with open(file_path, "wb") as audio_writer:
             audio_writer.write(audio_file.file.read())
+            print(file_path, 'saved')
 
     functions.train_model_function(model_name)
     return {
