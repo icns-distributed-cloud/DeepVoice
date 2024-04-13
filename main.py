@@ -96,9 +96,11 @@ async def reset_data(models: str = Form(...)):
 
 # 훈련된 모델 송신 1
 def send_model_to_local_server(model_name):
-    with open("/root/DeepVoice/Common_Config.json", "rw") as f:
+    with open("/root/DeepVoice/Common_Config.json", "r") as f:
         data = json.load(f)
         data['experiment_name'] = model_name
+
+    with open("/root/DeepVoice/Common_Config.json", "w") as f:
         json.dump(data, f)
     
     data = {'model_name': model_name}
