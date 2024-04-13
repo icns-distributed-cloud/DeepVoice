@@ -94,41 +94,57 @@ async def reset_data(models: str = Form(...)):
     }
 
 
-# 훈련된 모델 송신
+# 훈련된 모델 송신 1
 def send_model_to_local_server(model_name):
-    pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    with open(pth_file_path, "rb") as f:
-        pth_contents = f.read()
-
-    weight_file_path = f"/content/rvcDisconnected/{model_name}"
-    weight_file_path = os.path.join(weight_file_path, os.listdir(weight_file_path)[0])
-    with open(weight_file_path, "rb") as f:
-        weight_contents = f.read()
-
-    files = {
-        "pth": ("model.pth", pth_contents),
-        "weight": ("weight.index", weight_contents)
-    }
-
+    with open("/root/DeepVoice/Common_Config.json", "rw") as f:
+        data = json.load(f)
+        data['experiment_name'] = model_name
+        json.dump(data, f)
+    
     data = {'model_name': model_name}
-
     url = local_address+"/receive_trained_model"
-    response = requests.post(url, files=files, data=data)
+    response = requests.post(url, data=data)
     print(response)
 
+# 훈련된 모델 송신 2
+@app.get("/get_pth")
+async def get_pth():
+    with open("/root/DeepVoice/Common_Config.json", "r") as f:
+        data = json.load(f)
+        model_name = data['experiment_name']
+    pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
+    pth_contents =  open(pth_file_path, "rb")
+    filename = pth_file_path.split('/')[-1]
+
+    return FileResponse(pth_contents, filename=filename)
+
+# 훈련된 모델 송신 2
+@app.get("/get_weight")
+async def get_weight():
+    with open("/root/DeepVoice/Common_Config.json", "r") as f:
+        data = json.load(f)
+        model_name = data['experiment_name']
+    weight_file_path = f"/content/rvcDisconnected/{model_name}"
+    weight_file_path = os.path.join(weight_file_path, os.listdir(weight_file_path)[0])
+    weight_contents =  open(weight_file_path, "rb")
+    filename = weight_file_path.split('/')[-1]
+
+    return FileResponse(weight_contents, filename=filename)
 
 # 5. 훈련된 모델 수신
 @app.post("/receive_trained_model")
-async def receive_trained_model(pth: bytes = Form(...), weight: bytes = Form(...), model_name: str = Form(...)):
+async def receive_trained_model(model_name: str = Form(...)):
+    with open("/root/DeepVoice/Common_Config.json", "r") as f:
+        data = json.load(f)
+    pth_url = data['server_address'] + '/get_pth'
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    with open(pth_file_path, "wb") as f:
-        f.write(pth)
+    os.system(f'wget -p {pth_file_path} {pth_url}')
 
-    weight_file_path = f"/content/rvcDisconnected/{model_name}/added_IVF386_Flat_nprobe_1_{model_name}_v2.index"
+    weight_url = data['server_address'] + '/get_weight'
+    weight_file_path = f"/content/rvcDisconnected/{model_name}/"
     if not os.path.isdir(f"/content/rvcDisconnected/{model_name}"):
         os.makedirs(f"/content/rvcDisconnected/{model_name}", exist_ok=True)
-    with open(weight_file_path, "wb") as f:
-        f.write(weight)
+    os.system(f'wget -p {weight_file_path} {weight_url}')
 
     return {
         "success" : 1,
