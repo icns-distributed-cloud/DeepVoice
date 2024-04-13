@@ -50,3 +50,7 @@ def remove(model_name):
     # 3. dataset_Infer 정리
     if os.path.isfile(os.path.join('/content/dataset_Infer', model_name+'.wav')):
         os.remove(os.path.join('/content/dataset_Infer', model_name+'.wav'))
+        
+    # 4. logs 정리
+    if os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/logs', model_name)):
+        shutil.rmtree(os.path.join('/content/Mangio-RVC-Fork/logs', model_name))
