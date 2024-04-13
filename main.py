@@ -105,14 +105,15 @@ def send_model_to_local_server(model_name):
     with open(weight_file_path, "rb") as f:
         weight_contents = f.read()
 
-    data = {
-        "pth" : (model_name+'.pth', pth_contents),
-        "weight" : (model_name, weight_contents),
-        'model_name' : model_name
+    files = {
+        "pth": ("model.pth", pth_contents),
+        "weight": ("weight.index", weight_contents)
     }
 
+    data = {'model_name': model_name}
+
     url = local_address+"/receive_trained_model"
-    response = requests.post(url, files=data)
+    response = requests.post(url, files=files, data=data)
     print(response)
 
 
