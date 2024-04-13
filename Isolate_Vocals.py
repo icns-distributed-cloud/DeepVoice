@@ -260,10 +260,10 @@ def dlFile(track,pretrained_model,isYouTube=False,export_as_mp3=False):
 ############################## VSC REWRITE
 ##########################################
 # ------------VSC REWRITE
-#if os.path.isfile('main.py') == False:
-#    if MountDrive:
-#        os.chdir(mounting_path + '/VocalRemover5-COLAB_arch')
-#    else:
+if os.path.isfile('main.py') == False:
+    if MountDrive:
+        os.chdir(mounting_path + '/VocalRemover5-COLAB_arch')
+    else:
 os.chdir('/content/VocalRemover5-COLAB_arch')
 
 ScanSeparatedFolder = False #@param {type:"boolean"}
@@ -546,6 +546,11 @@ for i, file in enumerate(os.listdir(processed_file_path)):
 if os.path.isdir('/content/VocalRemover5-COLAB_arch/tracks'):
     print('tracks 폴더를 정리합니다.')
     shutil.rmtree('/content/VocalRemover5-COLAB_arch/tracks')
+
+    folder_path = '/root/DeepVoice/tracks'
+    for file in os.listdir(folder_path):
+        os.remove(os.path.join(folder_path, file))
+
     
 
 print('total process time:', round(time.time()-start_time, 2))
