@@ -64,6 +64,7 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
         with open("/root/DeepVoice/Common_Config.json", "w") as f:
             data['model_training'] = True
             json.dump(data, f)
+        functions.train_model_function(model_name)
         send_model_to_local_server(model_name)
         #time.sleep(10)
         
@@ -115,8 +116,6 @@ async def reset_data(models: str = Form(...)):
 
 # 훈련된 모델 송싱
 async def send_model_to_local_server(model_name):
-    functions.train_model_function(model_name)
-
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
     with open(pth_file_path, "r") as f:
         pth_contents = f.read()
