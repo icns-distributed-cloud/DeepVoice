@@ -1,6 +1,7 @@
 apt update
 mkdir /content
 mkdir /content/rvcDisconnected
+mkdir tracks
 
 
 # Isolates Vocal 
