@@ -6,6 +6,8 @@ import functions
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
 
+import os
+
 app = FastAPI()
 
 # 임시로 데이터를 저장할 딕셔너리
