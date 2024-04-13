@@ -74,7 +74,7 @@ async def text_info(model_name: str = Form(...), text: str = Form(...), gender: 
         "data" : {
             "inference_data" : FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
         },
-        "message": f"Model training completed for {model_name} with {len(audios)} audio files",
+        "message": f"Model inference completed.",
     }
 
 # 4. 데이터 초기화
@@ -97,13 +97,11 @@ async def reset_data(models: str = Form(...)):
 # 훈련된 모델 송신
 def send_model_to_local_server(model_name):
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    with open(pth_file_path, "rb") as f:
-        pth_contents = f.read()
+    pth_contents = open(pth_file_path, "rb")
 
     weight_file_path = f"/content/rvcDisconnected/{model_name}"
     weight_file_path = os.path.join(weight_file_path, os.listdir(weight_file_path)[0])
-    with open(weight_file_path, "rb") as f:
-        weight_contents = f.read()
+    weight_contents = open(weight_file_path, "rb")
 
     data = {
         "pth" : pth_contents,
@@ -118,16 +116,16 @@ def send_model_to_local_server(model_name):
 
 # 5. 훈련된 모델 수신
 @app.post("/receive_trained_model")
-async def receive_trained_model(pth: bytes  = Form(...), weight: bytes  = Form(...), model_name: str = Form(...)):
+async def receive_trained_model(pth: bytes = Form(...), weight: bytes = Form(...), model_name: str = Form(...)):
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
     with open(pth_file_path, "wb") as f:
-        contents = await pth.read()
-        f.write(contents)
+        f.write(pth)
 
     weight_file_path = f"/content/rvcDisconnected/{model_name}/added_IVF386_Flat_nprobe_1_{model_name}_v2.index"
-    with open(file_path, "wb") as f:
-        contents = await weight.read()
-        f.write(contents)
+    if not os.path.isdir(f"/content/rvcDisconnected/{model_name}"):
+        os.makedirs(f"/content/rvcDisconnected/{model_name}", exist_ok=True)
+    with open(weight_file_path, "wb") as f:
+        f.write(weight)
 
     return {
         "success" : 1,
@@ -148,8 +146,9 @@ async def main():
     <input type="submit">
     </form>
     <form action="/text_info/" enctype="multipart/form-data" method="post">
-    <input name="text" type="text">
     <input name="model_name" type="text">
+    <input name="text" type="text">
+    <input name="gender" type="int">
     <input type="submit">
     </form>
     </form>
