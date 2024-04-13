@@ -97,15 +97,17 @@ async def reset_data(models: str = Form(...)):
 # 훈련된 모델 송신
 def send_model_to_local_server(model_name):
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    pth_contents = open(pth_file_path, "rb")
+    with open(pth_file_path, "rb") as f:
+        pth_contents = f.read()
 
     weight_file_path = f"/content/rvcDisconnected/{model_name}"
     weight_file_path = os.path.join(weight_file_path, os.listdir(weight_file_path)[0])
-    weight_contents = open(weight_file_path, "rb")
+    with open(weight_file_path, "rb") as f:
+        weight_contents = f.read()
 
     data = {
-        "pth" : pth_contents,
-        "weight" : weight_contents,
+        "pth" : (model_name+'.pth', pth_contents),
+        "weight" : (model_name, weight_contents),
         'model_name' : model_name
     }
 
