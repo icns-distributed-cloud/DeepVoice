@@ -41,16 +41,20 @@ def Inference_with_Text(model_name, text):
 def remove(model_name):
     # 1. 모델 pth 삭제
     if os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')):
+        print(os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth'), 'delete')
         os.remove(os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth'))
     
     # 2. 모델 weight 삭제
     if os.path.isdir(os.path.join('/content/rvcDisconnected', model_name)):
+        print(os.path.join('/content/rvcDisconnected', model_name), 'delete')
         shutil.rmtree(os.path.join('/content/rvcDisconnected', model_name))
 
     # 3. dataset_Infer 정리
     if os.path.isfile(os.path.join('/content/dataset_Infer', model_name+'.wav')):
+        print(os.path.join('/content/dataset_Infer', model_name+'.wav'), 'delete')
         os.remove(os.path.join('/content/dataset_Infer', model_name+'.wav'))
         
     # 4. logs 정리
     if os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/logs', model_name)):
+        print(os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/logs', model_name), 'delete')
         shutil.rmtree(os.path.join('/content/Mangio-RVC-Fork/logs', model_name))

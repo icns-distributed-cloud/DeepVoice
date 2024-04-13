@@ -16,12 +16,18 @@ data = {
     "text_info": None
 }
 
-# 0. 모델 리스트 받기
+# 1. 모델 리스트 받기
 @app.get("/models/")
 async def get_models():
-    return schemas.ModelInfoResponse(models=functions.ModelInfoResponse())  
+    return {
+        "success" : 1,
+        "data" : {
+                "models" : schemas.ModelInfoResponse(models=functions.ModelInfoResponse())
+            },
+        "message": "Return model list"
+        }
 
-# 1. 모델 훈련 이름 정보 받기 & 2. 녹음 파일 받기 (20개) 3. 모델 훈련 시작하기
+# 2. 모델 훈련 이름 정보 받기 & 녹음 파일 받기 (20개) 모델 훈련 시작하기
 @app.post("/train_model/")
 async def train_model(audios: List[UploadFile] = File(...), model_name: str = Form(...)):  
     model_name = model_name
@@ -39,21 +45,28 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
 
     functions.train_model_function(model_name)
     return {
-        "message": f"Model training completed for {model_name} with {len(audios)} audio files",
+        "success" : 1,
         "data" : {
             "train_done" : True
-        }
+        },
+        "message": f"Model training completed for {model_name} with {len(audios)} audio files",
     }
 
 # 4. 텍스트 정보 받기 6. 모델 추론 결과 제공
 @app.post("/text_info")
-async def text_info(model_name: str = Form(...), text: str = Form(...)):
+async def text_info(model_name: str = Form(...), text: str = Form(...), gender: int = Form(...)):
     if not text:
         raise HTTPException(status_code=400, detail="No text provided")
 
     inference_data_path = functions.Inference_with_Text(model_name, text)
     filename = inference_data_path.split('/')[-1]
-    return FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
+    return {
+        "success" : 1,
+        "data" : {
+            "inference_data" : FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
+        },
+        "message": f"Model training completed for {model_name} with {len(audios)} audio files",
+    }
 
 # 7. 데이터 초기화
 @app.post("/remove_data")
@@ -65,7 +78,11 @@ async def reset_data(models: str = Form(...)):
     if models:
         functions.remove(models)
     
-    return {"message": "All {}data removed".format(models)}
+    return {
+        "success" : 1,
+        "data" : {},
+        "message": "All {}data removed".format(models),
+    }
 
 @app.get("/")
 async def main():
