@@ -42,6 +42,8 @@ if os.path.isdir('/content/VocalRemover5-COLAB_arch/separated'):
     folder_path = '/content/VocalRemover5-COLAB_arch/separated'
     for file in os.listdir(folder_path):
         os.remove(os.path.join(folder_path, file))
+else:
+    os.makedirs('/content/VocalRemover5-COLAB_arch/separated')
 
 if not os.path.isdir('/content/VocalRemover5-COLAB_arch/tracks'):
     print('tracks 폴더를 복사합니다.')

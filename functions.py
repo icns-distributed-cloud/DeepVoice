@@ -15,8 +15,11 @@ def ModelInfoResponse():
 
 def train_model_function(model_name):
     # 1. Isolate_vocal.py
+    print('start Isolate_Vocals.py')
     os.system('python Isolate_Vocals.py')
+
     # 2. Voice_Model_Training.py
+    print('start Voice_Model_Training.py')
     os.system('python Voice_Model_Training.py -n {}'.format(model_name))
     
 def Inference_with_Text(model_name, text):
