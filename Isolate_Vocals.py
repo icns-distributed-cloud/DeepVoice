@@ -179,10 +179,7 @@ def check_update():
 
 #-------------Script begin-------------
 if os.path.isdir('/content/VocalRemover5-COLAB_arch') == False:
-    if os.path.isdir('/content/VocalRemover5-COLAB_arch'):
-        print('Success!')
-    else:
-        dlvr()
+    dlvr()
 
 
 ###########################################
