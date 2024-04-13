@@ -439,6 +439,7 @@ print('TTA: {}'.format(settings_tta))
 print('Deep Extraction: {}'.format(settings_deepExtraction))
 print()
 
+print(os.getcwd())
 if useCustomArguments == False:
     os.system(f'python3.8 main.py -i "{input}" {convertAll} --useAllModel "{model_version}" --model_params "{parameter}" -P "{pretrained_model}" -w {window_size} -H "{high_end_process}" --aggressiveness {aggressiveness} -n "{nn_architecture}" -g {gpu} {deepExtraction} {isVocal} {suppress} {output_image} {postprocess} {tta}')
     if download and convertAll:
