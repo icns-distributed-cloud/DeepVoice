@@ -1,8 +1,7 @@
 apt update
 mkdir /content
 mkdir /content/rvcDisconnected
-mkdir /content/VocalRemover5-COLAB_arch
-mkdir /content/VocalRemover5-COLAB_arch/tracks
+
 
 # Isolates Vocal 
 # PC

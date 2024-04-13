@@ -6,8 +6,6 @@ import functions
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
 
-import os
-
 app = FastAPI()
 
 # 임시로 데이터를 저장할 딕셔너리
@@ -33,10 +31,12 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
     
 
     for audio_file in audios:
-        file_path = f"/content/VocalRemover5-COLAB_arch/tracks/{audio_file.filename}"
+        file_path = f"/root/DeepVoice/tracks/{audio_file.filename}"
         with open(file_path, "wb") as audio_writer:
             contents = await audio_file.read()
             audio_writer.write(contents)
+        
+
     functions.train_model_function(model_name)
     return {
         "message": f"Model training completed for {model_name} with {len(audios)} audio files",
