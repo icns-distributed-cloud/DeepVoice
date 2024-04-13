@@ -112,21 +112,22 @@ def send_model_to_local_server(model_name):
         pth = f.read()
 
     files = {'pth': pth}
+    data = {"model_name" : model_name}
     url = local_address+"/receive_trained_model"
-    response = requests.post(url, files=files)
+    response = requests.post(url, files=files, data=data)
     print(response)
 
 # 5. 훈련된 모델 수신
 @app.post("/receive_trained_model")
-async def receive_trained_model(pth: UploadFile = Form(...)):
-    print(pth.filename)
+async def receive_trained_model(pth: UploadFile = Form(...), model_name: str = Form(...)):
+    print(model_name)
     #pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', pth.filename)
     #os.system(f'wget -p {pth_file_path} {pth_url}')
 
-    weight_url = data['server_address'] + '/get_weight'
-    weight_file_path = f"/content/rvcDisconnected/{model_name}/"
-    if not os.path.isdir(f"/content/rvcDisconnected/{model_name}"):
-        os.makedirs(f"/content/rvcDisconnected/{model_name}", exist_ok=True)
+    #weight_url = data['server_address'] + '/get_weight'
+    #weight_file_path = f"/content/rvcDisconnected/{model_name}/"
+    #if not os.path.isdir(f"/content/rvcDisconnected/{model_name}"):
+    #    os.makedirs(f"/content/rvcDisconnected/{model_name}", exist_ok=True)
     #os.system(f'wget -p {weight_file_path} {weight_url}')
 
     return {
