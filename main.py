@@ -3,8 +3,11 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from typing import List
 import schemas  # schemas.py 파일에서 정의한 모델을 import
 import functions
-from fastapi.responses import HTMLResponse
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse, FileResponse
+
+import asyncio
+import requests
+import json
 
 app = FastAPI()
 
@@ -15,6 +18,10 @@ data = {
     "recordings": [],
     "text_info": None
 }
+
+with open("/root/DeepVoice/Common_Config.json", "r") as f:
+            data = json.load(f)
+local_address = data['local_address']
 
 # 1. 모델 리스트 받기
 @app.get("/models/")
@@ -42,8 +49,9 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
             contents = await audio_file.read()
             audio_writer.write(contents)
         
+    # 비동기 훈련
+    asyncio.create_task(send_model_to_local_server(model_name))
 
-    functions.train_model_function(model_name)
     return {
         "success" : 1,
         "data" : {
@@ -52,7 +60,7 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
         "message": f"Model training completed for {model_name} with {len(audios)} audio files",
     }
 
-# 4. 텍스트 정보 받기 6. 모델 추론 결과 제공
+# 3. 텍스트 정보 받기 and 모델 추론 결과 제공
 @app.post("/text_info")
 async def text_info(model_name: str = Form(...), text: str = Form(...), gender: int = Form(...)):
     if not text:
@@ -68,7 +76,7 @@ async def text_info(model_name: str = Form(...), text: str = Form(...), gender: 
         "message": f"Model training completed for {model_name} with {len(audios)} audio files",
     }
 
-# 7. 데이터 초기화
+# 4. 데이터 초기화
 @app.post("/remove_data")
 async def reset_data(models: str = Form(...)):
     if not models:
@@ -82,6 +90,41 @@ async def reset_data(models: str = Form(...)):
         "success" : 1,
         "data" : {},
         "message": "All {}data removed".format(models),
+    }
+
+async def send_model_to_local_server(model_name):
+    functions.train_model_function(model_name)
+
+    pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
+    weight_file_path = f"/content/rvcDisconnected/{model_name}/added_IVF386_Flat_nprobe_1_{model_name}_v2.index"
+
+    data = {
+        "pth" : FileResponse(pth_file_path, filename=pth_file_path.split('/')[-1]),
+        "weight" : FileResponse(weight_file_path, filename=weight_file_path.split('/')[-1]),
+        'model_name' : model_name
+    }
+
+    url = local_address+"/send_trained_model"
+    response = requests.post(url, files=data)
+    print(response)
+
+# 5. 훈련된 모델 수신
+@app.post("/send_trained_model")
+async def reset_data(pth: UploadFile = Form(...), weight: UploadFile = Form(...), model_name: str = Form(...)):
+    pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
+    with open(pth_file_path, "wb") as f:
+        contents = await pth.read()
+        f.write(contents)
+
+    weight_file_path = f"/content/rvcDisconnected/{model_name}/added_IVF386_Flat_nprobe_1_{model_name}_v2.index"
+    with open(file_path, "wb") as f:
+        contents = await weight.read()
+        f.write(contents)
+
+    return {
+        "success" : 1,
+        "data" : {},
+        "message": "Model received"
     }
 
 @app.get("/")
