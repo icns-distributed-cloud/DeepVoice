@@ -55,10 +55,13 @@ if use_rvc:
     
 # simple generation
 text_prompt = config.text_prompt
-
 voice_name = "speaker_0" # use your custom voice name here if you have on
 
-filepath = "/content/dataset_Infer/audio.wav"
+infer_data_path = '/content/dataset_Infer'
+if os.path.isdir(infer_data_path):
+    os.makedirs(infer_data_path, exist_ok=True)
+
+filepath = os.path.join(infer_data_path, "audio.wav")
 audio_array = generate_audio(text_prompt, history_prompt=voice_name, text_temp=0.7, waveform_temp=0.7)
 write_wav(filepath, SAMPLE_RATE, audio_array)
 
@@ -75,7 +78,7 @@ if use_rvc:
     except:
         audio_array = vc_single(0,filepath,f0up_key,None,'pm',index_path,index_rate, filter_radius=filter_radius, resample_sr=resample_sr, rms_mix_rate=rms_mix_rate, protect=protect)
 
-    infer_data_path = '/content/dataset_Infer'
+    
     os.makedirs(infer_data_path, exist_ok=True)
     save_data_path = os.path.join(infer_data_path, f'{rvc_name}.wav')
     write_wav(save_data_path, SAMPLE_RATE, audio_array)
