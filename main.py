@@ -9,8 +9,20 @@ import requests
 import json
 import os
 import time
+from fastapi.middleware.cors import CORSMiddleware
+origins = [
+    # "http://192.168.0.13:3000", # url을 등록해도 되고
+    "*" # private 영역에서 사용한다면 *로 모든 접근을 허용할 수 있다.
+]
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True, # cookie 포함 여부를 설정한다. 기본은 False
+    allow_methods=["*"],    # 허용할 method를 설정할 수 있으며, 기본값은 'GET'이다.
+    allow_headers=["*"],	# 허용할 http header 목록을 설정할 수 있으며 Content-Type, Accept, Accept-Language, Content-Language은 항상 허용된다.
+)
 
 # 임시로 데이터를 저장할 딕셔너리
 data = {
@@ -49,11 +61,10 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
             audio_writer.write(contents)
     
     print('Train Start')
-    functions.train_model_function(model_name)
+    #functions.train_model_function(model_name)
     send_model_to_local_server(model_name)
     print('Train end')
 
-        #send_model_to_local_server(model_name)
 
     return {
         "success" : 1,
@@ -96,57 +107,27 @@ async def reset_data(models: str = Form(...)):
 
 # 훈련된 모델 송신 1
 def send_model_to_local_server(model_name):
-    with open("/root/DeepVoice/Common_Config.json", "r") as f:
-        data = json.load(f)
-        data['experiment_name'] = model_name
-
-    with open("/root/DeepVoice/Common_Config.json", "w") as f:
-        json.dump(data, f)
-    
-    data = {'model_name': model_name}
-    url = local_address+"/receive_trained_model"
-    response = requests.post(url, data=data)
-    print(response)
-
-# 훈련된 모델 송신 2
-@app.get("/get_pth")
-async def get_pth():
-    with open("/root/DeepVoice/Common_Config.json", "r") as f:
-        data = json.load(f)
-        model_name = data['experiment_name']
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    pth_contents =  open(pth_file_path, "rb")
-    filename = pth_file_path.split('/')[-1]
+    with open(pth_file_path, "rb") as f:
+        pth = f.read()
 
-    return FileResponse(pth_contents, filename=filename)
-
-# 훈련된 모델 송신 2
-@app.get("/get_weight")
-async def get_weight():
-    with open("/root/DeepVoice/Common_Config.json", "r") as f:
-        data = json.load(f)
-        model_name = data['experiment_name']
-    weight_file_path = f"/content/rvcDisconnected/{model_name}"
-    weight_file_path = os.path.join(weight_file_path, os.listdir(weight_file_path)[0])
-    weight_contents =  open(weight_file_path, "rb")
-    filename = weight_file_path.split('/')[-1]
-
-    return FileResponse(weight_contents, filename=filename)
+    files = {'pth': pth}
+    url = local_address+"/receive_trained_model"
+    response = requests.post(url, files=files)
+    print(response)
 
 # 5. 훈련된 모델 수신
 @app.post("/receive_trained_model")
-async def receive_trained_model(model_name: str = Form(...)):
-    with open("/root/DeepVoice/Common_Config.json", "r") as f:
-        data = json.load(f)
-    pth_url = data['server_address'] + '/get_pth'
-    pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    os.system(f'wget -p {pth_file_path} {pth_url}')
+async def receive_trained_model(pth: UploadFile = Form(...)):
+    print(pth.filename)
+    #pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', pth.filename)
+    #os.system(f'wget -p {pth_file_path} {pth_url}')
 
     weight_url = data['server_address'] + '/get_weight'
     weight_file_path = f"/content/rvcDisconnected/{model_name}/"
     if not os.path.isdir(f"/content/rvcDisconnected/{model_name}"):
         os.makedirs(f"/content/rvcDisconnected/{model_name}", exist_ok=True)
-    os.system(f'wget -p {weight_file_path} {weight_url}')
+    #os.system(f'wget -p {weight_file_path} {weight_url}')
 
     return {
         "success" : 1,
