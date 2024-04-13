@@ -56,5 +56,5 @@ def remove(model_name):
         
     # 4. logs 정리
     if os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/logs', model_name)):
-        print(os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/logs', model_name), 'delete')
+        print(os.path.isfile(os.path.join('/content/Mangio-RVC-Fork/logs', model_name), 'delete'))
         shutil.rmtree(os.path.join('/content/Mangio-RVC-Fork/logs', model_name))
