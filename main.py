@@ -38,11 +38,6 @@ async def get_models():
 # 2. 모델 훈련 이름 정보 받기 & 녹음 파일 받기 (20개) 모델 훈련 시작하기
 @app.post("/train_model/")
 async def train_model(audios: List[UploadFile] = File(...), model_name: str = Form(...), background_tasks: BackgroundTasks = None):
-    with open("/root/DeepVoice/Common_Config.json", "r") as f:
-        data = json.load(f)
-
-    model_training = data['model_training']
-
     if len(audios) < 1:
         raise HTTPException(status_code=400, detail="Minimun recordings limit exceeded")
     
@@ -53,25 +48,10 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
             contents = await audio_file.read()
             audio_writer.write(contents)
     
-    if model_training:
-        return {
-            "success" : 0,
-            "data" : {},
-            "message": "Model is already training",
-        }
-    else:
-        print('Train Start')
-        with open("/root/DeepVoice/Common_Config.json", "w") as f:
-            data['model_training'] = True
-            json.dump(data, f)
-        functions.train_model_function(model_name)
-        send_model_to_local_server(model_name)
-        #time.sleep(10)
-        
-        with open("/root/DeepVoice/Common_Config.json", "w") as f:
-            data['model_training'] = False
-            json.dump(data, f)
-        print('Train end')
+    print('Train Start')
+    functions.train_model_function(model_name)
+    send_model_to_local_server(model_name)
+    print('Train end')
 
         #send_model_to_local_server(model_name)
 
