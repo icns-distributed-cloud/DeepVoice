@@ -1,13 +1,14 @@
 # main.py
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, BackgroundTasks
 from typing import List
 import schemas  # schemas.py 파일에서 정의한 모델을 import
 import functions
 from fastapi.responses import HTMLResponse, FileResponse
-
-import asyncio
+import multiprocessing
 import requests
 import json
+import os
+import time
 
 app = FastAPI()
 
@@ -29,16 +30,19 @@ async def get_models():
     return {
         "success" : 1,
         "data" : {
-                "models" : schemas.ModelInfoResponse(models=functions.ModelInfoResponse())
+                "models":functions.ModelInfoResponse()
             },
         "message": "Return model list"
         }
 
 # 2. 모델 훈련 이름 정보 받기 & 녹음 파일 받기 (20개) 모델 훈련 시작하기
 @app.post("/train_model/")
-async def train_model(audios: List[UploadFile] = File(...), model_name: str = Form(...)):  
-    model_name = model_name
-    audios = audios
+async def train_model(audios: List[UploadFile] = File(...), model_name: str = Form(...), background_tasks: BackgroundTasks = None):
+    with open("/root/DeepVoice/Common_Config.json", "r") as f:
+        data = json.load(f)
+
+    model_training = data['model_training']
+
     if len(audios) < 1:
         raise HTTPException(status_code=400, detail="Minimun recordings limit exceeded")
     
@@ -48,16 +52,32 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
         with open(file_path, "wb") as audio_writer:
             contents = await audio_file.read()
             audio_writer.write(contents)
+    
+    if model_training:
+        return {
+            "success" : 0,
+            "data" : {},
+            "message": "Model is already training",
+        }
+    else:
+        print('Train Start')
+        with open("/root/DeepVoice/Common_Config.json", "w") as f:
+            data['model_training'] = True
+            json.dump(data, f)
+        send_model_to_local_server(model_name)
+        #time.sleep(10)
         
-    # 비동기 훈련
-    asyncio.create_task(send_model_to_local_server(model_name))
+        with open("/root/DeepVoice/Common_Config.json", "w") as f:
+            data['model_training'] = False
+            json.dump(data, f)
+        print('Train end')
+
+        #send_model_to_local_server(model_name)
 
     return {
         "success" : 1,
-        "data" : {
-            "train_done" : True
-        },
-        "message": f"Model training completed for {model_name} with {len(audios)} audio files",
+        "data" : {},
+        "message": f"Model training start for {model_name} with {len(audios)} audio files",
     }
 
 # 3. 텍스트 정보 받기 and 모델 추론 결과 제공
@@ -92,21 +112,29 @@ async def reset_data(models: str = Form(...)):
         "message": "All {}data removed".format(models),
     }
 
+
+# 훈련된 모델 송싱
 async def send_model_to_local_server(model_name):
     functions.train_model_function(model_name)
 
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
+    with open(pth_file_path, "r") as f:
+        pth_contents = f.read()
+
     weight_file_path = f"/content/rvcDisconnected/{model_name}/added_IVF386_Flat_nprobe_1_{model_name}_v2.index"
+    with open(weight_file_path, "r") as f:
+        weight_contents = f.read()
 
     data = {
-        "pth" : FileResponse(pth_file_path, filename=pth_file_path.split('/')[-1]),
-        "weight" : FileResponse(weight_file_path, filename=weight_file_path.split('/')[-1]),
+        "pth" : pth_contents,
+        "weight" : weight_contents,
         'model_name' : model_name
     }
 
     url = local_address+"/send_trained_model"
     response = requests.post(url, files=data)
     print(response)
+
 
 # 5. 훈련된 모델 수신
 @app.post("/send_trained_model")
