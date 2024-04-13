@@ -261,7 +261,7 @@ if os.path.isfile('main.py') == False:
     if MountDrive:
         os.chdir(mounting_path + '/VocalRemover5-COLAB_arch')
     else:
-os.chdir('/content/VocalRemover5-COLAB_arch')
+        os.chdir('/content/VocalRemover5-COLAB_arch')
 
 ScanSeparatedFolder = False #@param {type:"boolean"}
 #@markdown Convert all files in your tracks folder
