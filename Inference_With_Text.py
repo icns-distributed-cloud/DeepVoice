@@ -58,7 +58,7 @@ text_prompt = config.text_prompt
 voice_name = "speaker_0" # use your custom voice name here if you have on
 
 infer_data_path = '/content/dataset_Infer'
-if os.path.isdir(infer_data_path):
+if not os.path.isdir(infer_data_path):
     os.makedirs(infer_data_path, exist_ok=True)
 
 filepath = os.path.join(infer_data_path, "audio.wav")
