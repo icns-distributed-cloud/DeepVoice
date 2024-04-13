@@ -37,9 +37,6 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
         with open(file_path, "wb") as audio_writer:
             contents = await audio_file.read()
             audio_writer.write(contents)
-        
-        print(os.listdir('/content/VocalRemover5-COLAB_arch/tracks'))
-
     functions.train_model_function(model_name)
     return {
         "message": f"Model training completed for {model_name} with {len(audios)} audio files",

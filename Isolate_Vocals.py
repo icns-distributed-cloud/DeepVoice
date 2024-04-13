@@ -48,6 +48,8 @@ else:
 if not os.path.isdir('/content/VocalRemover5-COLAB_arch/tracks'):
     print('tracks 폴더를 복사합니다.')
     shutil.copytree('/root/DeepVoice/tracks', '/content/VocalRemover5-COLAB_arch/tracks')
+
+    
 ##########################################
 ###################### Setting Environment
 ##########################################
@@ -258,11 +260,11 @@ def dlFile(track,pretrained_model,isYouTube=False,export_as_mp3=False):
 ############################## VSC REWRITE
 ##########################################
 # ------------VSC REWRITE
-if os.path.isfile('main.py') == False:
-    if MountDrive:
-        os.chdir(mounting_path + '/VocalRemover5-COLAB_arch')
-    else:
-        os.chdir('/content/VocalRemover5-COLAB_arch')
+#if os.path.isfile('main.py') == False:
+#    if MountDrive:
+#        os.chdir(mounting_path + '/VocalRemover5-COLAB_arch')
+#    else:
+os.chdir('/content/VocalRemover5-COLAB_arch')
 
 ScanSeparatedFolder = False #@param {type:"boolean"}
 #@markdown Convert all files in your tracks folder
