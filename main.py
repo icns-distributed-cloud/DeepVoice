@@ -61,7 +61,7 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
             audio_writer.write(contents)
     
     print('Train Start')
-    #functions.train_model_function(model_name)
+    functions.train_model_function(model_name)
     send_model_to_local_server(model_name)
     print('Train end')
 
@@ -80,13 +80,14 @@ async def text_info(model_name: str = Form(...), text: str = Form(...), gender: 
 
     inference_data_path = functions.Inference_with_Text(model_name, text)
     filename = inference_data_path.split('/')[-1]
-    return {
-        "success" : 1,
-        "data" : {
-            "inference_data" : FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
-        },
-        "message": f"Model inference completed.",
-    }
+    #return {
+    #    "success" : 1,
+    #    "data" : {
+    #        "inference_data" : FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
+    #    },
+    #    "message": f"Model inference completed.",
+    #}
+    return FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
 
 # 4. 데이터 초기화
 @app.post("/remove_data")
@@ -111,7 +112,12 @@ def send_model_to_local_server(model_name):
     with open(pth_file_path, "rb") as f:
         pth = f.read()
 
-    files = {'pth': pth}
+    index_path = f"/content/Mangio-RVC-Fork/logs/{model_name}"
+    index_path = os.path.join(index_path, f"added_IVF4_Flat_nprobe_1_{model_name}_v2.index")
+    with open(index_path, "rb") as f:
+        index = f.read()
+
+    files = {'pth': pth, 'index':index}
     data = {"model_name" : model_name}
     url = local_address+"/receive_trained_model"
     response = requests.post(url, files=files, data=data)
@@ -119,16 +125,20 @@ def send_model_to_local_server(model_name):
 
 # 5. 훈련된 모델 수신
 @app.post("/receive_trained_model")
-async def receive_trained_model(pth: UploadFile = Form(...), model_name: str = Form(...)):
-    print(model_name)
-    #pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', pth.filename)
-    #os.system(f'wget -p {pth_file_path} {pth_url}')
+async def receive_trained_model(pth: UploadFile = Form(...), index: UploadFile = Form(...), model_name: str = Form(...)):
+    print(index.filename)
 
-    #weight_url = data['server_address'] + '/get_weight'
-    #weight_file_path = f"/content/rvcDisconnected/{model_name}/"
-    #if not os.path.isdir(f"/content/rvcDisconnected/{model_name}"):
-    #    os.makedirs(f"/content/rvcDisconnected/{model_name}", exist_ok=True)
-    #os.system(f'wget -p {weight_file_path} {weight_url}')
+    pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
+    with open(pth_file_path, "wb") as f:
+        contents = await pth.read()
+        f.write(contents)
+
+    index_path = f"/content/Mangio-RVC-Fork/logs/{model_name}"
+    os.makedirs(index_path, exist_ok=True)
+    index_path = os.path.join(index_path, f"added_IVF4_Flat_nprobe_1_{model_name}_v2.index")
+    with open(index_path, "wb") as f:
+        contents = await index.read()
+        f.write(contents)
 
     return {
         "success" : 1,
