@@ -94,7 +94,7 @@ async def reset_data(models: str = Form(...)):
     }
 
 
-# 훈련된 모델 송싱
+# 훈련된 모델 송신
 def send_model_to_local_server(model_name):
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
     with open(pth_file_path, "rb") as f:
@@ -111,14 +111,14 @@ def send_model_to_local_server(model_name):
         'model_name' : model_name
     }
 
-    url = local_address+"/send_trained_model"
+    url = local_address+"/receive_trained_model"
     response = requests.post(url, files=data)
     print(response)
 
 
 # 5. 훈련된 모델 수신
-@app.post("/send_trained_model")
-async def reset_data(pth: UploadFile = Form(...), weight: UploadFile = Form(...), model_name: str = Form(...)):
+@app.post("/receive_trained_model")
+async def receive_trained_model(pth: bytes  = Form(...), weight: bytes  = Form(...), model_name: str = Form(...)):
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
     with open(pth_file_path, "wb") as f:
         contents = await pth.read()
