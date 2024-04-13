@@ -49,7 +49,7 @@ async def get_models():
 
 # 2. 모델 훈련 이름 정보 받기 & 녹음 파일 받기 (20개) 모델 훈련 시작하기
 @app.post("/train_model/")
-async def train_model(audios: List[UploadFile] = File(...), model_name: str = Form(...), background_tasks: BackgroundTasks = None):
+async def train_model(audios: List[UploadFile] = File(...), model_name: str = Form(...)):
     if len(audios) < 1:
         raise HTTPException(status_code=400, detail="Minimun recordings limit exceeded")
     
