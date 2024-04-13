@@ -117,11 +117,11 @@ async def reset_data(models: str = Form(...)):
 # 훈련된 모델 송싱
 def send_model_to_local_server(model_name):
     pth_file_path = os.path.join('/content/Mangio-RVC-Fork/weights', model_name+'.pth')
-    with open(pth_file_path, "r") as f:
+    with open(pth_file_path, "rb") as f:
         pth_contents = f.read()
 
     weight_file_path = f"/content/rvcDisconnected/{model_name}/added_IVF386_Flat_nprobe_1_{model_name}_v2.index"
-    with open(weight_file_path, "r") as f:
+    with open(weight_file_path, "rb") as f:
         weight_contents = f.read()
 
     data = {
