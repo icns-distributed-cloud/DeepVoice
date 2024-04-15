@@ -61,7 +61,7 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
     
     print('Train Start')
     functions.train_model_function(model_name)
-    send_model_to_local_server(model_name)
+    #send_model_to_local_server(model_name)
     print('Train end')
 
 
@@ -144,6 +144,17 @@ async def receive_trained_model(pth: UploadFile = Form(...), index: UploadFile =
         "data" : {},
         "message": "Model received"
     }
+
+@app.route("/get_audio/<model_name>")
+async def receive_trained_model(model_name: str = Form(...)):
+    path = '/content/dataset_Infer'
+    filename = model_name+'.wav'
+    audio_path = os.path.join(path, filename)
+
+    if not os.path.isfile(audio_path):
+        raise HTTPException(status_code=400, detail="file not found")
+
+    return FileResponse(audio_path, media_type='audio/wav', filename=filename)
 
 @app.get("/")
 async def main():
