@@ -145,8 +145,8 @@ async def receive_trained_model(pth: UploadFile = Form(...), index: UploadFile =
         "message": "Model received"
     }
 
-@app.route("/get_audio/<model_name>")
-async def receive_trained_model(model_name: str = Form(...)):
+@app.get("/get_audio/")
+async def receive_trained_model(model_name: str):
     path = '/content/dataset_Infer'
     filename = model_name+'.wav'
     audio_path = os.path.join(path, filename)
