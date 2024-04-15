@@ -19,9 +19,8 @@
         <h2>음성을 선택해주세요</h2>
         <div class = "grey-box">
             <h3>{{ sentences[currentSentenceIndex] }}</h3>
-        </div>
-        <div class="button-container">
-          <ButtonComponent @click="showModelButton">음성 녹음</ButtonComponent>
+            <!-- 문장마다 음성 녹음 버튼 추가 -->
+            <button class="record-button" @click="recordSentence">음성 녹음</button>
         </div>
         <button v-if="currentSentenceIndex > 0" class="previous-sentence-button" @click="handlePreviousSentence">이전 문장</button>
         <button v-if="modelButtonVisible" class="next-sentence-button" @click="handleNextSentence">다음 문장</button>
@@ -32,7 +31,7 @@
 </template>
 
 <script>
-import ButtonComponent from "../components/ButtonComponent.vue";
+//import ButtonComponent from "../components/ButtonComponent.vue";
 import TitleComponent from "../components/TitleComponent.vue";
 import LogoComponent from "../components/LogoComponent.vue";
 import TrainComponent from "../views/TrainComponent.vue"; // TrainComponent import
@@ -41,7 +40,7 @@ export default {
   name: "LearningModel",
 
   components: {
-    ButtonComponent,
+    //ButtonComponent,
     TitleComponent,
     LogoComponent,
     TrainComponent,
@@ -75,7 +74,8 @@ export default {
         "18. 조금만 더 힘을 내!",
         "19. 정말 특별한 순간이야!",
         "20. 문장을 끝까지 읽느라 수고많았어요." // 문장 20
-      ]
+      ],
+      recordedSentences: [] // 녹음된 문장을 저장할 배열 추가
     };
   },
 
@@ -113,6 +113,29 @@ export default {
         this.showTrainingButton = false;
       }
     },
+
+    /*
+    // 문장 녹음 기능
+    recordSentence() {
+      // 현재 문장에 대한 녹음 시작
+      const recordedSentence = this.sentences[this.currentSentenceIndex];
+      this.recordedSentences.push(recordedSentence);
+
+      // 녹음된 문장을 저장하고 필요에 따라 처리합니다.
+      // 이 부분은 브라우저 호환성과 녹음 기능에 따라 달라질 수 있습니다.
+      this.startRecording(recordedSentence);
+    },
+
+    startRecording(sentence) {
+      const formData = new FormData();
+      formData.append('model_name', 'your_model_name_here'); // 모델 이름 정보 추가
+
+      // 녹음된 음성 파일을 formData에 추가
+      // 여기서는 파일 이름을 'audio'로 지정
+      const audioBlob = new Blob([sentence], {type: 'audio/wav' }); // sentence는 녹음된 음성 데이터를 가정
+      formData.append()
+    
+    },*/
 
     trainModel() {
       if (confirm("모델을 훈련 중입니다.")) {
@@ -229,6 +252,24 @@ export default {
 
 .ccrc {
   color: rgb(231, 64, 64); /* 파란색으로 통일 */
+}
+
+.record-button {
+  width: 120px;
+  height: 45px;
+  margin-top: 10px; /* 버튼 위에 여백 추가 */
+  background-color: grey;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.record-button:hover {
+  background-color: rgb(87, 87, 87);
+  transform: translateY(-2px);
 }
 
 .deep-voice,

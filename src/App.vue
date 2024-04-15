@@ -16,7 +16,7 @@
         </div>
         <div class="button-container">
           <!-- 추론 버튼 -->
-          <button @click= "currentPage = 'inference'" class="main-button">추론하기</button>
+          <button @click= "currentPage = 'inference'" class="main-button">체험하기</button>
           <!-- 학습 버튼 -->
           <button @click= "currentPage = 'learning'" class="main-button">학습하기</button>
         </div>
@@ -24,8 +24,6 @@
     </div>  
     <!-- InferenceComponent 렌더링 -->
     <InferenceComponent v-if = "currentPage === 'inference'" @changePage ="changePage"/>
-
-    <InferenceModel v-if = "currentPage === 'i-Model'" @changePage ="changePage"/>
     
     <!-- LearningComponent 렌더링 -->
     <LearningComponent v-if = "currentPage === 'learning'" @changePage ="changePage"/>
@@ -41,7 +39,6 @@ import TitleComponent from './components/TitleComponent.vue';
 import InferenceComponent from './views/InferenceComponent.vue';
 import LearningComponent from './views/LearningComponent.vue';
 //import ButtonComponent from './components/ButtonComponent.vue';
-//import InferenceModel from './views/InferenceModel.vue';
 //import TrainComponent from './views/TrainComponent.vue';
 
 export default {
@@ -50,8 +47,6 @@ export default {
     TitleComponent,
     InferenceComponent,
     LearningComponent,
-    //ButtonComponent,
-    // InferenceModel
   },
 
   data() {

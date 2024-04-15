@@ -1,9 +1,5 @@
 <template>
   <div>
-    <div v-if="currentPage === 'i-Model'">
-      <!-- i-Model 페이지 -->
-      <InferenceModel @back="changePage('inference')" @model-selected="handleModelSelected" />
-    </div>
     <div v-if="currentPage === 'inference'">
       <!-- 추론 요소 페이지 -->
       <LogoComponent />
@@ -17,7 +13,7 @@
         <h2>원하는 문장을 입력하세요</h2>
         <div class = "grey-box">
           <!-- 텍스트 입력 창 -->
-          <input type="text" v-model="inputText" @keyup.enter="handleInputEnter" placeholder="텍스트를 입력하세요">
+          <input type="text" v-model="inputText" @keyup.enter="handleInputEnter" placeholder="텍스트를 입력하세요 (글자 수 제한: 50)" maxlength="50" style="width: 70%">
           <!-- 성별 선택 라디오 버튼 -->
           <div class="gender-selection">
             <label>
@@ -30,8 +26,20 @@
             </label>
           </div>
         </div>
-        <div class="button-container">
-          <ButtonComponent @click="showModelSelection">모델 선택</ButtonComponent>
+        <div class="button-container" v-if="!modelListVisible">
+          <ButtonComponent @click="showModelSelection">모델 호출</ButtonComponent>
+        </div>
+
+        <!-- 모델 리스트 -->
+        <div class="button-container" v-if="modelListVisible">
+          <ButtonComponent v-for="model in modelList" :key="model" @click="selectModel(model)">
+            {{ model }}
+          </ButtonComponent>
+        </div>
+
+        <!-- 선택한 모델에 대한 버튼 -->
+        <div class="button-container" v-if="selectedModel">
+          <ButtonComponent @click="listenVoice">음성 듣기</ButtonComponent>
         </div>
       </div>
     </div>
@@ -42,7 +50,6 @@
 import ButtonComponent from "../components/ButtonComponent.vue";
 import TitleComponent from "../components/TitleComponent.vue";
 import LogoComponent from "../components/LogoComponent.vue";
-import InferenceModel from "../views/InferenceModel.vue"; // 새 창으로 사용할 컴포넌트 import
 
 export default {
   name: "InferenceComponent",
@@ -51,7 +58,6 @@ export default {
     ButtonComponent,
     TitleComponent,
     LogoComponent,
-    InferenceModel,
   },
 
   data() {
@@ -60,13 +66,31 @@ export default {
       inputText: "", // 사용자가 입력한 텍스트를 저장할 데이터
       selectedGender: "", // 선택한 성별을 저장하는 변수
       selectedModel: "", // 선택된 모델을 저장할 변수 추가
+      modelList: [], // 모델 리스트 데이터 추가
+      modelListVisible: false, // 모델 리스트 보이기 여부
     };
   },
 
   methods: {
     showModelSelection() {
-      // 모델 선택 버튼 클릭 시 모델 선택 컴포넌트로 화면 전환
-      this.changePage('i-Model');
+      this.modelListVisible = true;
+      this.fetchModelList(); // 모델 선택 버튼을 누르면 모델 리스트를 불러오는 함수 호출
+    },
+
+    selectModel(model) {
+      // 이미 선택된 모델이 있는지 확인
+      if (this.selectedModel) {
+        // 이미 선택된 모델이 있으면 선택할 수 없음을 알리는 메시지 출력
+        alert('이미 모델을 선택하셨습니다.');
+        return;
+      }
+
+      // 모델 선택 시 선택된 모델 저장 및 모델 리스트 감추기
+      this.selectedModel = model;
+      this.modelListVisible = false;
+
+      // 선택한 모델에 따라 텍스트 정보를 백엔드로 전송
+      this.sendTextInfoToBackend();
     },
 
     handleInputEnter(event) {
@@ -76,24 +100,37 @@ export default {
       
       // 이전에 입력한 값 위에 새로 입력한 값을 덮어쓰기
       this.inputText = newText;
-
-      // 여기서 입력된 텍스트를 백엔드로 보낼 수 있음
     },
-
-    handleModelSelected(model) {
-      this.selectedModel = model; // 선택된 모델을 저장
-      console.log("Selected model: ", model);
-      // 선택된 모델을 백엔드로 보내는 등의 작업을 수행할 수 있음
+    
+    // 모델 리스트를 불러와서 Vue.js 데이터에 저장하는 함수
+    async fetchModelList() {
+      try {
+        const response = await fetch('http://163.180.117.43:8000/models/', {
+          method: 'GET', // 요청 사용
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        const data = await response.json();
+        console.log(data.data.models);  // 데이터 확인용 콘솔 출력
+        if (data.success === 1) {
+          this.modelList = data.data.models; // 모델 리스트 데이터를 Vue.js 데이터에 저장
+        } else {
+          console.error('Failed to fetch model list: ', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching model list: ', error);
+      }
     },
-
-    changePage(page) {
-      console.log("페이지 전환: ", page); // 페이지 전환 로그
-      this.currentPage = page;
-    },
-
+   
     async sendTextInfoToBackend() {
       try {
-        const genderValue = this.selectedGender === 'male' ? 0 : 1; // gender를 int로 변환
+        const genderValue = this.selectedGender === 'male' ? '0' : '1'; // gender를 int로 변환
+        console.log(JSON.stringify({
+            model_name: this.selectedModel, // 선택한 모델 정보를 함께 전송
+            text: this.inputText,
+            gender: genderValue,
+          }))
         const response = await fetch('http://163.180.117.43:8000/text_info', {
           method: 'POST',
           headers: {
@@ -105,12 +142,24 @@ export default {
             gender: genderValue,
           }),
         });
+
+        if (!response.ok) {
+          throw new Error('Failed to send text info to backend');
+        }
+
         const responseData = await response.json();
-        console.log(responseData); // 서버로부터의 응답 확인
+        console.log("Response from backend: ", responseData); // 백엔드로부터의 응답 확인
+
+      
       } catch (error) {
         console.error('Error sending text info to backend: ', error);
       }
     },
+
+    listenVoice() {
+      // 선택한 모델의 음성 듣기 기능을 호출하는 로직 추가
+    },
+
   },
 };
 </script>
@@ -204,4 +253,3 @@ export default {
   -moz-osx-font-smoothing: grayscale;
 }
 </style>
-
