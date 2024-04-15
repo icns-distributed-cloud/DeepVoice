@@ -1,5 +1,6 @@
 <template>
   <div>
+    <PEComponent v-if="currentPage === 'PE'" @changePage="changePage"/>
     <div v-if="currentPage === 'inference'">
       <!-- 추론 요소 페이지 -->
       <LogoComponent />
@@ -10,46 +11,34 @@
       </TitleComponent>
       <div class="white-box">
         <button @click="$emit('changePage', 'home')" class="back-button">뒤로 가기</button>
-        <h2>원하는 문장을 입력하세요</h2>
+        <div v-if="loading" class="loading-message">
+          <h2>음성 추론 중입니다. 2분 정도 기다려주세요.</h2>
+        </div>
+        <div v-if="!loading">
+          <h2>원하는 문장을 입력하세요</h2>
+        </div> 
         <div class = "grey-box">
           <!-- 텍스트 입력 창 -->
-          <input type="text" v-model="inputText" @keyup.enter="handleInputEnter" placeholder="텍스트를 입력하세요 (글자 수 제한: 50)" maxlength="50" style="width: 70%">
-          <!-- 성별 선택 라디오 버튼 -->
-          <div class="gender-selection">
-            <label>
-              <input type="radio" v-model="selectedGender" value="male">
-              남성
-            </label>
-            <label>
-              <input type="radio" v-model="selectedGender" value="female">
-              여성
-            </label>
+          <div class="input-container">
+            <input type="text" v-model="inputText" @keyup.enter="handleInputEnter" placeholder="텍스트를 입력하세요 (글자 수 50자 제한)" maxlength="50" style="width: 70%">
           </div>
-        </div>
-        <div class="button-container" v-if="!modelListVisible">
-          <ButtonComponent @click="showModelSelection">모델 호출</ButtonComponent>
-        </div>
-
+          </div>
         <!-- 모델 리스트 -->
-        <div class="button-container" v-if="modelListVisible">
-          <div class="model-list-header">
-            <h4>사전에 훈련된 모델 불러오기</h4>
-          </div>
+        <div class="button-container">
           <div class="model-list-buttons">
             <ButtonComponent v-for="model in modelList" :key="model" @click="selectModel(model)">
               {{ model }}
             </ButtonComponent>
           </div>
         </div>
-
         <!-- 선택한 모델에 대한 버튼 -->
-        <div class="button-container" v-if="selectedModel">
-          <ButtonComponent @click="listenVoice">음성 듣기</ButtonComponent>
-        </div>
-
-        <div v-if="loading" class="loading-message">
-          음성 추론 중입니다. 1분 정도 기다려주세요.
-        </div>
+        <button v-if="selectedModel && !loading && !showAudioBox" class="voice-creation-button" @click="sendTextInfoToBackend">음성 생성</button>
+        <button v-if="selectedModel && !loading && showAudioBox" class="PE-button" @click="goToPE">예방 교육</button>
+      </div>
+      <div class="audio-box" v-if="showAudioBox">
+        <h2>생성된 음성을 재생해보세요</h2>
+        <audio :src="audioSrc" controls>
+        </audio>        
       </div>
     </div>
   </div>
@@ -59,6 +48,7 @@
 import ButtonComponent from "../components/ButtonComponent.vue";
 import TitleComponent from "../components/TitleComponent.vue";
 import LogoComponent from "../components/LogoComponent.vue";
+import PEComponent from "./PEComponent.vue";
 
 export default {
   name: "InferenceComponent",
@@ -67,6 +57,7 @@ export default {
     ButtonComponent,
     TitleComponent,
     LogoComponent,
+    PEComponent,
   },
 
   data() {
@@ -78,10 +69,22 @@ export default {
       modelList: [], // 모델 리스트 데이터 추가
       modelListVisible: false, // 모델 리스트 보이기 여부
       loading: false, // 로딩 상태를 나타내는 변수 추가
+
+      showAudioBox: false,
+      BaseaudioSrc: "http://163.180.117.43:8000/get_audio/?model_name=",
+      audioSrc:"",
     };
   },
 
   methods: {
+    goToPE() {
+      this.changePage('PE');
+    },
+
+    changePage(page){
+      this.currentPage = page;
+    },
+
     showModelSelection() {
       this.modelListVisible = true;
       this.fetchModelList(); // 모델 선택 버튼을 누르면 모델 리스트를 불러오는 함수 호출
@@ -90,10 +93,7 @@ export default {
     selectModel(model) {
       // 모델 선택 시 선택된 모델 저장 및 모델 리스트 감추기
       this.selectedModel = model;
-      this.modelListVisible = false;
-
       // 선택한 모델에 따라 텍스트 정보를 백엔드로 전송
-      this.sendTextInfoToBackend();
     },
 
     handleInputEnter(event) {
@@ -110,9 +110,6 @@ export default {
       try {
         const response = await fetch('http://163.180.117.43:8000/models/', {
           method: 'GET', // 요청 사용
-          headers: {
-            'Content-Type': 'application/json',
-          }
         });
         const data = await response.json();
         console.log(data.data.models);  // 데이터 확인용 콘솔 출력
@@ -135,6 +132,7 @@ export default {
         data.append("gender", genderValue);
         console.log(data.keys);
 
+        this.showAudioBox = false;
         this.loading = true; // 데이터를 보내는 중이므로 로딩 상태를 true로 변경
         const response = await fetch('http://163.180.117.43:8000/text_info', {
           method: "POST",
@@ -145,55 +143,25 @@ export default {
         }
         const responseData = await response.json(); // 응답 데이터를 responseData 변수에 저장
         console.log("Response from backend: ", responseData); // 백엔드로부터의 응답 확인
-
-        // 응답이 성공적으로 도착하면 listenVoice() 호출
         this.listenVoice(responseData);
+      
       } catch (error) {
         console.error('Error sending text info to backend: ', error);
       } finally {
         this.loading = false; // 요청이 완료되면 로딩 상태를 false로 변경
+        this.listenVoice();
       }
     },
 
-    listenVoice(responseData) {
-      if (responseData && responseData.data) {  // responseData가 존재하고 응답 데이터가 있는 경우에만 처리
-        this.disableButtons(); // 다른 버튼 비활성화
-        const audioData = responseData.data.audio; // 백엔드로부터 받은 응답 데이터에서 음성 데이터 추출
-        const audioBlob = new Blob([audioData], { type: 'audio/wav' }); // Blob 객체 생성
-        const audioUrl = URL.createObjectURL(audioBlob); // Blob 객체 URL 생성
-
-        const audio = new Audio(audioUrl); // Audio 객체 생성
-        audio.play(); // 음성 재생
-
-        // 음성 재생이 끝난 후 다시 버튼 활성화
-        audio.onended = () => {
-          this.enableButtons(); // 다른 버튼 활성화
-        }
-      } else {
-        console.error('No response data available.'); // 응답 데이터가 없는 경우 오류 메시지 출력
-      }
+    listenVoice() {
+      this.audioSrc = this.BaseaudioSrc + this.selectedModel;
+      this.showAudioBox = true;
     },
 
-    disableButtons() {
-      // 음성 듣기 버튼 비활성화
-      const buttonContainers = document.querySelectorAll('.button-container');
-      buttonContainers.forEach(container => {
-        container.querySelectorAll('button').forEach(button => {
-          button.disabled = true;
-        });
-      });
-    },
-
-    enableButtons() {
-      // 모든 버튼 활성화
-      const buttonContainers = document.querySelectorAll('.button-container');
-      buttonContainers.forEach(container => {
-        container.querySelectorAll('button').forEach(button => {
-          button.disabled = false;
-        });
-      });
-    }
   },
+  mounted(){
+      this.fetchModelList();
+  }
 };
 </script>
 
@@ -217,10 +185,6 @@ export default {
   background-color: darkgrey;
 }
 
-.gender-selection {
-  margin-top: 10px;
-}
-
 .white-box {
   background-color: #ffffff; /* 박스 색상을 흰색으로 변경 */
   padding: 40px;
@@ -235,6 +199,26 @@ export default {
   margin-bottom: 100px;
 }
 
+.grey-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.input-container {
+  width: 100%;
+}
+
+.audio-box {
+  background-color: #ffffff; /* 박스 색상을 흰색으로 변경 */
+  padding: 10px;
+  margin: 5px;
+  border-radius: 50px; /* 모서리 둥글게 처리 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 그림자를 좀 더 부드럽게 설정 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  align-items: center;
+}
+
 .logo-container {
   display: flex; /* 이미지를 flex item으로 만듬 */
   justify-content: flex-end; /* 오른쪽 정렬 */
@@ -246,6 +230,46 @@ export default {
   align-items: center;
   margin-top: 30px; /* 버튼 위에 여백 추가 */
   justify-content: space-around;
+}
+
+.voice-creation-button {
+  width: 90px;
+  height: 45px;
+  margin: 0 5px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  background-color: grey;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.voice-creation-button:hover{
+  background-color: rgb(87, 87, 87);
+  transform: translateY(-2px);
+}
+
+.PE-button {
+  width: 90px;
+  height: 45px;
+  margin: 0 5px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  background-color: grey;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.PE-button:hover{
+  background-color: rgb(87, 87, 87);
+  transform: translateY(-2px);
 }
 
 .model-list-header {
@@ -262,7 +286,7 @@ export default {
 }
 
 .model-listen-button {
-  width: 100px;
+  width: 150px;
   height: 50px;
   margin: 0 5px;
   margin-top: 50px;

@@ -17,18 +17,14 @@
         <div class="button-container">
           <!-- 추론 버튼 -->
           <button @click= "currentPage = 'inference'" class="main-button">체험하기</button>
-          <!-- 학습 버튼 -->
-          <button @click= "currentPage = 'learning'" class="main-button">학습하기</button>
         </div>
       </div>
     </div>  
     <!-- InferenceComponent 렌더링 -->
     <InferenceComponent v-if = "currentPage === 'inference'" @changePage ="changePage"/>
     
-    <!-- LearningComponent 렌더링 -->
-    <LearningComponent v-if = "currentPage === 'learning'" @changePage ="changePage"/>
-
-    
+    <!-- PEComponent (Prevention Education 예방 교육) 렌더링 -->
+    <PEComponent v-if = "currentPage === 'PE'" @changePage ="changePage"/>
 
   </div>
 </template>
@@ -37,16 +33,14 @@
 import LogoComponent from './components/LogoComponent.vue';
 import TitleComponent from './components/TitleComponent.vue';
 import InferenceComponent from './views/InferenceComponent.vue';
-import LearningComponent from './views/LearningComponent.vue';
-//import ButtonComponent from './components/ButtonComponent.vue';
-//import TrainComponent from './views/TrainComponent.vue';
+import PEComponent from './views/InferenceComponent.vue';
 
 export default {
   components: {
     LogoComponent,
     TitleComponent,
     InferenceComponent,
-    LearningComponent,
+    PEComponent,
   },
 
   data() {
@@ -85,6 +79,17 @@ export default {
 .white-box h3 {
   margin-bottom: 30px;
 }
+
+.grey-box {
+  background-color: #e0e0e0; 
+  padding: 20px;
+  margin: 10px auto;
+  width: 80%;
+  height: 20%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
 
 .container {
   /* 스타일 설정 */
