@@ -33,6 +33,7 @@ device="cuda:0"
 is_half=True
 
 # download and load all models
+#if (not os.path.isdir(semantic_path) and os.path.isdir(coarse_path) and os.path.isdir(fine_path)):
 preload_models(
     text_use_gpu=True,
     text_use_small=False,
