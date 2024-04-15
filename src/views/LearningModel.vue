@@ -114,28 +114,43 @@ export default {
       }
     },
 
-    /*
+    
     // 문장 녹음 기능
     recordSentence() {
       // 현재 문장에 대한 녹음 시작
       const recordedSentence = this.sentences[this.currentSentenceIndex];
       this.recordedSentences.push(recordedSentence);
 
-      // 녹음된 문장을 저장하고 필요에 따라 처리합니다.
-      // 이 부분은 브라우저 호환성과 녹음 기능에 따라 달라질 수 있습니다.
-      this.startRecording(recordedSentence);
-    },
-
-    startRecording(sentence) {
+      // FormData 객체 생성
       const formData = new FormData();
-      formData.append('model_name', 'your_model_name_here'); // 모델 이름 정보 추가
+      formData.append('model_name', ''); // 모델 이름 추가
 
       // 녹음된 음성 파일을 formData에 추가
-      // 여기서는 파일 이름을 'audio'로 지정
-      const audioBlob = new Blob([sentence], {type: 'audio/wav' }); // sentence는 녹음된 음성 데이터를 가정
-      formData.append()
-    
-    },*/
+      const audioBlob = new Blob([recordedSentence], { type: 'audio/wav'});
+      formData.append('audios', audioBlob, 'recorded_sentence.wav');
+
+      // fetch를 사용하여 백엔드에 데이터 전송
+      fetch('http://163.180.117.43:8000/train_model/', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        // 응답 처리
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // 데이터 처리
+        console.log(data);
+      })
+      .catch(error => {
+        // 에러 설치
+        console.error('Error uploading audio: ', error);
+      });
+      
+    },
 
     trainModel() {
       if (confirm("모델을 훈련 중입니다.")) {
@@ -194,7 +209,6 @@ export default {
   height: 20%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
-
 }
 
 .logo-container {
@@ -250,15 +264,12 @@ export default {
   transform: translateY(-2px);
 }
 
-.ccrc {
-  color: rgb(231, 64, 64); /* 파란색으로 통일 */
-}
-
 .record-button {
-  width: 120px;
-  height: 45px;
-  margin-top: 10px; /* 버튼 위에 여백 추가 */
-  background-color: grey;
+  width: 100px;
+  height: 50px;
+  margin: 0 5px;
+  margin-bottom: 0px;
+  background-color: #007aff;
   color: #ffffff;
   border: none;
   border-radius: 20px;
@@ -268,8 +279,12 @@ export default {
 }
 
 .record-button:hover {
-  background-color: rgb(87, 87, 87);
+  background-color: #005ecb;
   transform: translateY(-2px);
+}
+
+.ccrc {
+  color: rgb(231, 64, 64); /* 파란색으로 통일 */
 }
 
 .deep-voice,

@@ -32,14 +32,23 @@
 
         <!-- 모델 리스트 -->
         <div class="button-container" v-if="modelListVisible">
-          <ButtonComponent v-for="model in modelList" :key="model" @click="selectModel(model)">
-            {{ model }}
-          </ButtonComponent>
+          <div class="model-list-header">
+            <h4>사전에 훈련된 모델 불러오기</h4>
+          </div>
+          <div class="model-list-buttons">
+            <ButtonComponent v-for="model in modelList" :key="model" @click="selectModel(model)">
+              {{ model }}
+            </ButtonComponent>
+          </div>
         </div>
 
         <!-- 선택한 모델에 대한 버튼 -->
         <div class="button-container" v-if="selectedModel">
           <ButtonComponent @click="listenVoice">음성 듣기</ButtonComponent>
+        </div>
+
+        <div v-if="loading" class="loading-message">
+          음성 추론 중입니다. 1분 정도 기다려주세요.
         </div>
       </div>
     </div>
@@ -68,6 +77,7 @@ export default {
       selectedModel: "", // 선택된 모델을 저장할 변수 추가
       modelList: [], // 모델 리스트 데이터 추가
       modelListVisible: false, // 모델 리스트 보이기 여부
+      loading: false, // 로딩 상태를 나타내는 변수 추가
     };
   },
 
@@ -76,15 +86,8 @@ export default {
       this.modelListVisible = true;
       this.fetchModelList(); // 모델 선택 버튼을 누르면 모델 리스트를 불러오는 함수 호출
     },
-
+    
     selectModel(model) {
-      // 이미 선택된 모델이 있는지 확인
-      if (this.selectedModel) {
-        // 이미 선택된 모델이 있으면 선택할 수 없음을 알리는 메시지 출력
-        alert('이미 모델을 선택하셨습니다.');
-        return;
-      }
-
       // 모델 선택 시 선택된 모델 저장 및 모델 리스트 감추기
       this.selectedModel = model;
       this.modelListVisible = false;
@@ -125,41 +128,71 @@ export default {
    
     async sendTextInfoToBackend() {
       try {
-        const genderValue = this.selectedGender === 'male' ? '0' : '1'; // gender를 int로 변환
-        console.log(JSON.stringify({
-            model_name: this.selectedModel, // 선택한 모델 정보를 함께 전송
-            text: this.inputText,
-            gender: genderValue,
-          }))
-        const response = await fetch('http://163.180.117.43:8000/text_info', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model_name: this.selectedModel, // 선택한 모델 정보를 함께 전송
-            text: this.inputText,
-            gender: genderValue,
-          }),
-        });
+        const genderValue = this.selectedGender === 'male' ? "0" : "1"; // gender를 int로 변환
+        var data = new FormData(); // 요것이 핵심
+        data.append("model_name", this.selectedModel);
+        data.append("text", this.inputText);
+        data.append("gender", genderValue);
+        console.log(data.keys);
 
+        this.loading = true; // 데이터를 보내는 중이므로 로딩 상태를 true로 변경
+        const response = await fetch('http://163.180.117.43:8000/text_info', {
+          method: "POST",
+          body: data, // 요것이 핵심
+        });
         if (!response.ok) {
           throw new Error('Failed to send text info to backend');
         }
-
-        const responseData = await response.json();
+        const responseData = await response.json(); // 응답 데이터를 responseData 변수에 저장
         console.log("Response from backend: ", responseData); // 백엔드로부터의 응답 확인
 
-      
+        // 응답이 성공적으로 도착하면 listenVoice() 호출
+        this.listenVoice(responseData);
       } catch (error) {
         console.error('Error sending text info to backend: ', error);
+      } finally {
+        this.loading = false; // 요청이 완료되면 로딩 상태를 false로 변경
       }
     },
 
-    listenVoice() {
-      // 선택한 모델의 음성 듣기 기능을 호출하는 로직 추가
+    listenVoice(responseData) {
+      if (responseData && responseData.data) {  // responseData가 존재하고 응답 데이터가 있는 경우에만 처리
+        this.disableButtons(); // 다른 버튼 비활성화
+        const audioData = responseData.data.audio; // 백엔드로부터 받은 응답 데이터에서 음성 데이터 추출
+        const audioBlob = new Blob([audioData], { type: 'audio/wav' }); // Blob 객체 생성
+        const audioUrl = URL.createObjectURL(audioBlob); // Blob 객체 URL 생성
+
+        const audio = new Audio(audioUrl); // Audio 객체 생성
+        audio.play(); // 음성 재생
+
+        // 음성 재생이 끝난 후 다시 버튼 활성화
+        audio.onended = () => {
+          this.enableButtons(); // 다른 버튼 활성화
+        }
+      } else {
+        console.error('No response data available.'); // 응답 데이터가 없는 경우 오류 메시지 출력
+      }
     },
 
+    disableButtons() {
+      // 음성 듣기 버튼 비활성화
+      const buttonContainers = document.querySelectorAll('.button-container');
+      buttonContainers.forEach(container => {
+        container.querySelectorAll('button').forEach(button => {
+          button.disabled = true;
+        });
+      });
+    },
+
+    enableButtons() {
+      // 모든 버튼 활성화
+      const buttonContainers = document.querySelectorAll('.button-container');
+      buttonContainers.forEach(container => {
+        container.querySelectorAll('button').forEach(button => {
+          button.disabled = false;
+        });
+      });
+    }
   },
 };
 </script>
@@ -215,6 +248,19 @@ export default {
   justify-content: space-around;
 }
 
+.model-list-header {
+  position: relative;
+  text-align: center;
+}
+
+.model-list-header h4 {
+  position: absolute;
+  top: -75px;
+  left: -50px;;
+  display: inline-block;
+  white-space: nowrap;
+}
+
 .model-listen-button {
   width: 100px;
   height: 50px;
@@ -233,6 +279,12 @@ export default {
 .model-listen-button:hover {
   background-color: rgb(87, 87, 87);
   transform: translateY(-2px);
+}
+
+.loading-message {
+  margin-top: 20px; 
+  font-size: 16px;
+  color: #333;
 }
 
 .ccrc {

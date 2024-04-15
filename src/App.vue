@@ -83,7 +83,7 @@ export default {
 }
 
 .white-box h3 {
-  margin-bottom: 70px;
+  margin-bottom: 30px;
 }
 
 .container {
