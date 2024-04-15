@@ -28,4 +28,8 @@ export default {
   background-color: #005ecb;
   transform: translateY(-2px);
 }
+.custom-button:checked {
+  background-color: #3a3a3a;
+  transform: translateY(-2px);
+}
 </style>
