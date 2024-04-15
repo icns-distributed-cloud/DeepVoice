@@ -8,7 +8,7 @@
 ## Getting Started (Installation)
 ## Generate Docker Container
 ```bash
-sudo docker container run -itd  --gpus '"device=0, 1"' --ipc=host --name deepAudio -p 10000:10000 python:3.8
+sudo docker container run -itd  --gpus '"device=1, 2"' --ipc=host --name deepAudio -v /home/sun_server/jhk/WorldITShow:/content -p 10000:8080 -p 8000:8000 python:3.8
 sudo docker exec -it deepAudio /bin/bash
 cd root
 ```
