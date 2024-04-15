@@ -11,8 +11,7 @@ import os
 import time
 from fastapi.middleware.cors import CORSMiddleware
 origins = [
-    # "http://192.168.0.13:3000", # url을 등록해도 되고
-    "*" # private 영역에서 사용한다면 *로 모든 접근을 허용할 수 있다.
+    "*"
 ]
 
 app = FastAPI()
@@ -74,20 +73,20 @@ async def train_model(audios: List[UploadFile] = File(...), model_name: str = Fo
 
 # 3. 텍스트 정보 받기 and 모델 추론 결과 제공
 @app.post("/text_info")
-async def text_info(model_name: str = Form(...), text: str = Form(...), gender: int = Form(...)):
+async def text_info(model_name: str = Form(...), text: str = Form(...), gender: str = Form(...)):
     if not text:
         raise HTTPException(status_code=400, detail="No text provided")
 
     inference_data_path = functions.Inference_with_Text(model_name, text)
     filename = inference_data_path.split('/')[-1]
-    #return {
-    #    "success" : 1,
-    #    "data" : {
-    #        "inference_data" : FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
-    #    },
-    #    "message": f"Model inference completed.",
-    #}
-    return FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
+    return {
+        "success" : 1,
+        "data" : {
+            "inference_data" : FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
+        },
+        "message": f"Model inference completed.",
+    }
+    #return FileResponse(inference_data_path, media_type='audio/wav', filename=filename)
 
 # 4. 데이터 초기화
 @app.post("/remove_data")
@@ -174,4 +173,5 @@ async def main():
     return HTMLResponse(content=content)
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    #uvicorn.run(app, host="0.0.0.0", port= 8000)
+    #uvicorn.run(app, host="0.0.0.0", port= 10000)
