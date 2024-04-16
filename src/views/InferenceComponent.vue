@@ -12,7 +12,7 @@
       <div class="white-box">
         <button @click="$emit('changePage', 'home')" class="back-button">뒤로 가기</button>
         <div v-if="loading" class="loading-message">
-          <h2>음성 추론 중입니다. 2분 정도 기다려주세요.</h2>
+          <h2>음성 추론 중입니다. 잠시 기다려주세요.</h2>
         </div>
         <div v-if="!loading">
           <h2>원하는 문장을 입력하세요</h2>
